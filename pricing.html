@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ============================================================
+  PAGE: Pricing (pricing.html)
+  DESCRIPTION: 3 pricing plans (Starter, Professional, E-Commerce)
+               with full feature lists, plus an FAQ accordion.
+  STYLES: css/style.css
+  SCRIPTS: js/main.js
+  ============================================================
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pricing — Steve.dev</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── PRICING CARDS GRID ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 60px;
+    }
+
+    .price-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Top accent line slides in on hover */
+    .price-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+    .price-card:hover::before { transform: scaleX(1); }
+    .price-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--border2);
+    }
+
+    /* Featured plan has a different border and background */
+    .price-card.featured {
+      border-color: rgba(232,255,71,0.3);
+      background: var(--bg4);
+    }
+
+    /* "Most Popular" badge on featured card */
+    .popular-badge {
+      position: absolute;
+      top: 18px; right: 18px;
+      background: var(--accent);
+      color: #08080f;
+      padding: 4px 14px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .plan-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted2);
+      margin-bottom: 16px;
+    }
+    .plan-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .plan-price span { font-size: 1.1rem; color: var(--muted); }
+    .plan-note { color: var(--muted); font-size: 0.83rem; margin-bottom: 30px; }
+
+    /* Feature checklist */
+    .plan-features {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    .plan-features li {
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--muted2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .plan-features li::before {
+      content: '✓';
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* Plan CTA button */
+    .plan-btn {
+      display: block;
+      text-align: center;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .plan-btn:hover,
+    .price-card.featured .plan-btn {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #08080f;
+    }
+
+    /* ── FAQ SECTION ── */
+    .faq-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 80px;
+      align-items: start;
+      margin-top: 72px;
+    }
+    .faq-sticky { position: sticky; top: 110px; }
+
+    .faq-list { display: flex; flex-direction: column; }
+
+    /* Each FAQ item */
+    .faq-item { border-bottom: 1px solid var(--border); }
+
+    .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.97rem;
+      color: var(--text);
+      gap: 20px;
+      transition: color 0.2s ease;
+      user-select: none;
+    }
+    .faq-question:hover { color: var(--accent); }
+
+    /* The +/× icon */
+    .faq-icon {
+      width: 28px; height: 28px;
+      border: 1px solid var(--border2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      transition: transform 0.3s ease, background 0.2s ease;
+    }
+    /* Rotate to × when open */
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #08080f;
+    }
+
+    /* Answer — hidden by default, height-transitions open */
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-answer {
+      max-height: 400px;
+      padding-bottom: 20px;
+    }
+    .faq-answer p { font-size: 0.93rem; line-height: 1.8; }
+
+    /* ── TESTIMONIALS ── */
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 56px;
+    }
+    .testi-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px;
+      transition: border-color 0.3s;
+    }
+    .testi-card:hover { border-color: var(--border2); }
+    .testi-stars { color: var(--accent); font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 14px; }
+    .testi-quote-mark { font-family: 'Syne', sans-serif; font-size: 2.5rem; color: var(--accent); line-height: 1; margin-bottom: 12px; }
+    .testi-text { font-size: 0.93rem; line-height: 1.8; color: var(--muted2); margin-bottom: 22px; }
+    .testi-author { display: flex; align-items: center; gap: 14px; }
+    .testi-avatar { width: 42px; height: 42px; background: var(--bg4); border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; border:1px solid var(--border); }
+    .testi-name { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 2px; }
+    .testi-role { color: var(--muted); font-size: 0.78rem; }
+
+    @media (max-width: 900px) {
+      .faq-layout { grid-template-columns: 1fr; gap: 48px; }
+      .faq-sticky  { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor elements -->
+  <div class="cursor-ball" id="cursorBall"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="portfolio.html">Work</a></li>
+      <li><a href="pricing.html" class="active">Pricing</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><button class="theme-toggle" id="themeToggle">☀️</button></li>
+      <li><a href="contact.html" class="nav-hire">Hire Me</a></li>
+    </ul>
+    <!-- Mobile controls (hamburger + theme toggle) -->
+    <div class="mobile-controls">
+      <button class="theme-toggle" id="themeToggleMobile" title="Toggle theme">☀️</button>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" id="mobileClose">✕</button>
+    <a href="index.html">Home</a><a href="about.html">About</a>
+    <a href="services.html">Services</a><a href="portfolio.html">Work</a>
+    <a href="pricing.html">Pricing</a><a href="contact.html">Contact</a>
+    <a href="contact.html" style="color:var(--accent)">Hire Me →</a>
+  </div>
+
+  <!-- ── PAGE HERO ── -->
+  <div class="page-hero">
+    <div class="section-tag">Pricing</div>
+    <h1>Clear, Simple <span style="color:var(--accent)">Pricing</span></h1>
+    <p>No hidden fees. No agency markups. Just honest rates for quality work.</p>
+  </div>
+
+  <!-- ── PRICING CARDS ── -->
+  <section class="section section-alt">
+    <div class="reveal" style="text-align:center; max-width:580px; margin:0 auto;">
+      <div class="section-tag">Plans</div>
+      <h2 class="section-title">Choose Your Package</h2>
+      <p class="section-sub" style="margin:0 auto;">Every plan includes mobile-responsive design, SEO basics, and free support after launch.</p>
+    </div>
+
+    <div class="pricing-grid reveal delay-2">
+
+      <!-- STARTER PLAN -->
+      <div class="price-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">₹3,000 <span>– ₹6,000</span></div>
+        <div class="plan-note">Perfect for getting online fast</div>
+        <ul class="plan-features">
+          <li>Up to 5 pages</li>
+          <li>Mobile responsive design</li>
+          <li>Contact form</li>
+          <li>Basic SEO setup</li>
+          <li>Google Maps integration</li>
+          <li>WhatsApp button</li>
+          <li>2 rounds of revisions</li>
+          <li>Delivered in 48 hours</li>
+        </ul>
+        <a href="contact.html" class="plan-btn">Get Started</a>
+      </div>
+
+      <!-- PROFESSIONAL PLAN (featured) -->
+      <div class="price-card featured">
+        <div class="popular-badge">Most Popular</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-price">₹8,000 <span>– ₹15,000</span></div>
+        <div class="plan-note">For businesses that want to stand out</div>
+        <ul class="plan-features">
+          <li>Up to 10 pages</li>
+          <li>Custom UI design</li>
+          <li>Advanced on-page SEO</li>
+          <li>Speed optimised</li>
+          <li>Blog / News section</li>
+          <li>Social media links</li>
+          <li>Google Analytics setup</li>
+          <li>WhatsApp chat widget</li>
+          <li>3 rounds of revisions</li>
+          <li>Delivered in 72 hours</li>
+        </ul>
+        <a href="contact.html" class="plan-btn">Get Started</a>
+      </div>
+
+      <!-- E-COMMERCE PLAN -->
+      <div class="price-card">
+        <div class="plan-name">E-Commerce</div>
+        <div class="plan-price">₹15,000 <span>– ₹30,000</span></div>
+        <div class="plan-note">Full online store setup</div>
+        <ul class="plan-features">
+          <li>Unlimited products</li>
+          <li>Secure payment gateway</li>
+          <li>Order management system</li>
+          <li>Customer accounts</li>
+          <li>Coupon & discount system</li>
+          <li>Inventory tracking</li>
+          <li>Mobile checkout</li>
+          <li>Email order notifications</li>
+          <li>5 rounds of revisions</li>
+          <li>Delivered in 5–7 days</li>
+        </ul>
+        <a href="contact.html" class="plan-btn">Get Started</a>
+      </div>
+    </div>
+
+    <!-- Note about hosting -->
+    <p style="text-align:center; margin-top:28px; color:var(--muted); font-size:0.85rem;">
+      * Domain + hosting is separate (usually ₹800–₹2,000/year). I'll help you buy and set it up.
+    </p>
+  </section>
+
+  <!-- ── TESTIMONIALS ── -->
+  <section class="section">
+    <div class="reveal" style="text-align:center; max-width:580px; margin:0 auto;">
+      <div class="section-tag">Testimonials</div>
+      <h2 class="section-title">What Clients Say</h2>
+    </div>
+    <div class="testi-grid reveal delay-2">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote-mark">"</div>
+        <p class="testi-text">Steve built our coaching center website in just 2 days. Students are finding us on Google now and enquiries have gone up a lot. Very professional and affordable.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">👨‍🏫</div>
+          <div><div class="testi-name">Ravi Kumar</div><div class="testi-role">Director, RK Coaching Centre, Rajam</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote-mark">"</div>
+        <p class="testi-text">Our clinic needed a website fast and Steve delivered within 48 hours. Patients can now find our timings and book appointments easily. Excellent work!</p>
+        <div class="testi-author">
+          <div class="testi-avatar">👨‍⚕️</div>
+          <div><div class="testi-name">Dr. Srinivas Rao</div><div class="testi-role">Godavari Multi-Speciality Clinic</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote-mark">"</div>
+        <p class="testi-text">We wanted an online store for our saree business. Steve built exactly what we needed. Orders are coming from outside Rajahmundry now. Very happy!</p>
+        <div class="testi-author">
+          <div class="testi-avatar">👩‍💼</div>
+          <div><div class="testi-name">Lakshmi Devi</div><div class="testi-role">Owner, Godavari Silks</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ SECTION ── -->
+  <section class="section section-alt">
+    <div class="faq-layout">
+
+      <!-- Left: sticky label -->
+      <div class="faq-sticky reveal">
+        <div class="section-tag">FAQ</div>
+        <h2 class="section-title">Common Questions</h2>
+        <p class="section-sub">Have more questions? WhatsApp me — I'll reply within a few hours.</p>
+        <br/>
+        <a href="contact.html" class="btn-ghost" style="margin-top:8px;">Ask Me →</a>
+      </div>
+
+      <!-- Right: accordion items -->
+      <!-- toggleFaq() is defined in js/main.js -->
+      <div class="faq-list reveal delay-2">
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Do I need to provide anything to get started?</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <div class="faq-answer">
+            <p>Just your business name, what your business does, contact details, and any images or logo you have. I'll handle everything else — design, structure, content layout, and going live.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>How long does a website take?</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <div class="faq-answer">
+            <p>Most standard business websites are ready within 48–72 hours. E-commerce stores take 5–7 days. I always give you a clear timeline before starting work.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>What about hosting and domain — who pays for that?</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <div class="faq-answer">
+            <p>Hosting and domain are separate from my development charge. I'll help you buy them at the best price (usually ₹800–₹2,000/year) and set everything up. Or if you already have hosting, I can work with that too.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Can I update the website myself after it's done?</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <div class="faq-answer">
+            <p>Yes — I build sites with a simple admin panel so you can easily update text, images, and content without any coding knowledge. I'll also give you a quick walkthrough video after delivery.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Do you work with clients outside Rajahmundry?</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <div class="faq-answer">
+            <p>Absolutely. I work with clients all across India via WhatsApp, video calls, and email. Distance is no barrier — most of the work is done online anyway.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>What payment methods do you accept?</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <div class="faq-answer">
+            <p>I accept UPI (GPay, PhonePe, Paytm), bank transfer, and cash for local clients in Rajahmundry. I take 50% advance before starting and 50% after delivery.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Will my website show up on Google?</span>
+            <div class="faq-icon">+</div>
+          </div>
+          <div class="faq-answer">
+            <p>All websites include basic on-page SEO — proper titles, meta descriptions, fast loading, and mobile-friendliness. These are the foundations for ranking. For advanced SEO, I offer a separate optimisation service.</p>
+          </div>
+        </div>
+
+      </div><!-- end faq-list -->
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand"><a href="index.html" class="nav-logo">Steve<span>.</span>dev</a><p>Web developer from Rajahmundry building fast, professional websites across India.</p></div>
+      <div class="footer-col"><h5>Services</h5><ul><li><a href="services.html">Business Websites</a></li><li><a href="services.html">E-Commerce Stores</a></li><li><a href="services.html">Landing Pages</a></li><li><a href="services.html">SEO & Speed</a></li></ul></div>
+      <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="about.html">About Me</a></li><li><a href="portfolio.html">My Work</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 Steve | Web Developer, Rajahmundry, AP</p><p>Built with passion in <a href="#">Rajahmundry 🇮🇳</a></p></div>
+  </footer>
+
+  <div class="toast" id="toast"><div class="toast-dot"></div><span id="toastText"></span></div>
+  <script src="js/main.js"></script>
+
+  <script>
+    // Sync mobile theme toggle with desktop one
+    const mobileTog = document.getElementById('themeToggleMobile');
+    if (mobileTog) {
+      mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      mobileTog.addEventListener('click', () => {
+        document.getElementById('themeToggle').click();
+        mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ============================================================
+  PAGE: Portfolio (portfolio.html)
+  DESCRIPTION: Shows all client projects as cards with screenshot,
+               tags, and links. User can add/remove projects via
+               a modal. Data saved in localStorage so it persists.
+  STYLES: css/style.css + css/portfolio.css
+  SCRIPTS: js/main.js + page-specific JS below
+  ============================================================
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio — Steve.dev</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── PORTFOLIO GRID ── */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    /* ── PROJECT CARD ── */
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      opacity: 0;
+      animation: slideUp 0.5s ease forwards;
+    }
+    .project-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .project-card.visible {
+      opacity: 1;
+    }
+
+    /* Card thumbnail */
+    .card-thumb {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      background: var(--bg4);
+    }
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .project-card:hover .card-thumb img {
+      transform: scale(1.05);
+    }
+
+    /* Placeholder for no image */
+    .thumb-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: var(--bg4);
+      color: var(--muted);
+    }
+    .thumb-placeholder .icon {
+      font-size: 2.5rem;
+    }
+
+    /* Overlay (action buttons) */
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+      padding: 15px;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .project-card:hover .card-overlay {
+      opacity: 1;
+    }
+
+    /* Row container for Live, Edit, Delete buttons */
+    .overlay-btn-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+      flex-wrap: nowrap;
+    }
+
+    /* View button - full width */
+    .overlay-btn-view {
+      margin: 40px;
+      width: auto;
+      padding: 10px 30px !important;
+      font-size: 0.85rem !important;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .overlay-btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      flex: 1;
+      min-width: 0;
+    }
+    .overlay-btn:hover {
+      transform: scale(1.05);
+    }
+    .overlay-btn.ghost {
+      background: transparent;
+      color: var(--accent);
+    }
+    .overlay-btn.ghost:hover {
+      background: rgba(232, 255, 71, 0.1);
+    }
+
+    /* Card body (text) */
+    .card-body {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card-body h3 {
+      font-size: 1.2rem;
+      color: var(--text);
+    }
+    .card-body p {
+      font-size: 0.9rem;
+      color: var(--muted2);
+    }
+
+    /* Card tags */
+    .card-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+    .card-tag {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: rgba(232, 255, 71, 0.1);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .card-tag.blue {
+      background: rgba(71, 184, 255, 0.1);
+      color: var(--accent2);
+    }
+
+    /* ── ADD PROJECT CARD ── */
+    .add-project-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 40px 20px;
+      border-radius: 12px;
+      border: 2px dashed var(--border2);
+      background: var(--bg3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .add-project-card:hover {
+      border-color: var(--accent);
+      background: rgba(232, 255, 71, 0.05);
+    }
+
+    .add-icon-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(232, 255, 71, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--accent);
+      transition: all 0.3s ease;
+    }
+    .add-project-card:hover .add-icon-circle {
+      background: rgba(232, 255, 71, 0.25);
+      transform: scale(1.1);
+    }
+
+    .add-label {
+      text-align: center;
+    }
+    .add-label strong {
+      display: block;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    .add-label p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      color: var(--muted2);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .filter-btn.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    .modal-box h2 {
+      margin-bottom: 8px;
+      font-size: 1.5rem;
+    }
+    .modal-sub {
+      color: var(--muted2);
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+    }
+
+    /* ── FORM FIELDS ── */
+    .form-field {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg4);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232, 255, 71, 0.1);
+    }
+
+    /* ── FILE UPLOAD ZONE ── */
+    .upload-zone {
+      padding: 40px 20px;
+      border: 2px dashed var(--border2);
+      border-radius: 8px;
+      background: var(--bg4);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .upload-zone:hover {
+      border-color: var(--accent);
+      background: rgba(232, 255, 71, 0.05);
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+    #uploadLabel {
+      color: var(--muted2);
+      font-size: 0.9rem;
+    }
+
+    /* ── MODAL SUBMIT BUTTON ── */
+    .modal-submit {
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px 24px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #000;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .modal-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(232, 255, 71, 0.3);
+    }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1001;
+    }
+    .lightbox.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: transparent;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: color 0.2s;
+    }
+    .lightbox-close:hover {
+      color: var(--accent);
+    }
+
+    #lightboxImg {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 8px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .portfolio-grid {
+        grid-template-columns: 1fr;
+      }
+      .modal-box {
+        padding: 24px;
+      }
+      #lightboxImg {
+        max-width: 95vw;
+        max-height: 95vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor elements -->
+  <div class="cursor-ball" id="cursorBall"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="portfolio.html" class="active">Work</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><button class="theme-toggle" id="themeToggle">☀️</button></li>
+      <li><a href="contact.html" class="nav-hire">Hire Me</a></li>
+    </ul>
+    <!-- Mobile controls (hamburger + theme toggle) -->
+    <div class="mobile-controls">
+      <button class="theme-toggle" id="themeToggleMobile" title="Toggle theme">☀️</button>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" id="mobileClose">✕</button>
+    <a href="index.html">Home</a><a href="about.html">About</a>
+    <a href="services.html">Services</a><a href="portfolio.html">Work</a>
+    <a href="pricing.html">Pricing</a><a href="contact.html">Contact</a>
+    <a href="contact.html" style="color:var(--accent)">Hire Me →</a>
+  </div>
+
+
+  <!-- ── PAGE HERO ── -->
+  <div class="page-hero">
+    <div class="section-tag">Portfolio</div>
+    <h1>My <span style="color:var(--accent)">Work</span></h1>
+    <p>A collection of websites I've designed and built for businesses and clients.</p>
+  </div>
+
+
+  <!-- ── PORTFOLIO SECTION ── -->
+  <section class="section">
+
+    <!-- Controls row: filter buttons + add project button -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; margin-bottom:40px;">
+
+      <!-- Category filter buttons -->
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
+        <button class="filter-btn" onclick="filterProjects('Business', this)">Business</button>
+        <button class="filter-btn" onclick="filterProjects('E-Commerce', this)">E-Commerce</button>
+        <button class="filter-btn" onclick="filterProjects('Coaching', this)">Coaching</button>
+        <button class="filter-btn" onclick="filterProjects('Portfolio', this)">Portfolio</button>
+        <button class="filter-btn" onclick="filterProjects('Landing Pages', this)">Landing Pages</button>
+        <button class="filter-btn" onclick="filterProjects('Other', this)">Other</button>
+      </div>
+
+      <!-- Add new project button -->
+      <button class="btn-primary" onclick="openModal()" style="font-size:0.85rem; padding:12px 24px;">
+        + Add Project
+      </button>
+    </div>
+
+    <!-- Project cards are rendered here by JS -->
+    <div class="portfolio-grid" id="portfolioGrid"></div>
+  </section>
+
+
+  <!-- ============================================================
+       ADD/EDIT PROJECT MODAL (COMBINED PASSWORD + FORM)
+       Opens when user clicks "+ Add Project".
+       Step 1: Ask for password
+       Step 2: Once verified, show project form in same modal
+       ============================================================ -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+
+      <!-- Close button -->
+      <button class="modal-close" onclick="closeModal()">✕</button>
+
+      <!-- ── STEP 1: PASSWORD SECTION ── -->
+      <div id="passwordSection" class="modal-section">
+        <h2>🔐 Admin Access Required</h2>
+        <p class="modal-sub">Enter password to add, edit, or delete projects</p>
+        
+        <div class="form-field">
+          <label class="form-label">Admin Password</label>
+          <input class="form-input" type="password" id="adminPassword" placeholder="Enter password" />
+        </div>
+
+        <div id="passwordError" class="password-error">
+          ❌ Incorrect password. Try again.
+        </div>
+
+        <div style="display:flex; gap:12px;">
+          <button class="modal-submit" onclick="verifyAdminPassword()" style="flex:1;">Verify Password</button>
+          <button class="modal-submit" onclick="closeModal()" style="flex:1; background:var(--bg3); color:var(--text);">Cancel</button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: PROJECT FORM SECTION ── -->
+      <div id="formSection" class="modal-section" style="display:none;">
+        <h2 id="formTitle">Add New Project</h2>
+        <p class="modal-sub">Fill in the project details below</p>
+
+        <!-- Project title input -->
+        <div class="form-field">
+          <label class="form-label">Project Title *</label>
+          <input class="form-input" type="text" id="modalTitle" placeholder="e.g. E-Shop for Rajesh Textiles" />
+        </div>
+
+        <!-- Category dropdown -->
+        <div class="form-field">
+          <label class="form-label">Category</label>
+          <select class="form-input" id="modalCategory">
+            <option value="Business">Business Website</option>
+            <option value="E-Commerce">E-Commerce Store</option>
+            <option value="Coaching">Coaching / Institute</option>
+            <option value="Landing Pages">Landing Page</option>
+            <option value="Portfolio">Portfolio / Personal</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Project description -->
+        <div class="form-field">
+          <label class="form-label">Project Description</label>
+          <textarea class="form-input" id="modalDesc" placeholder="Describe what this project does..." style="min-height:100px; resize:vertical;"></textarea>
+        </div>
+
+        <!-- Client Name -->
+        <div class="form-field">
+          <label class="form-label">Client Name (optional)</label>
+          <input class="form-input" type="text" id="modalClient" placeholder="e.g. Rajesh Textiles" />
+        </div>
+
+        <!-- Technologies Used -->
+        <div class="form-field">
+          <label class="form-label">Technologies Used</label>
+          <input class="form-input" type="text" id="modalTech" placeholder="e.g. React, Node.js, MongoDB" />
+        </div>
+
+        <!-- Live URL -->
+        <div class="form-field">
+          <label class="form-label">Project Link (Live URL)</label>
+          <input class="form-input" type="text" id="modalUrl" placeholder="https://example.com" />
+        </div>
+
+        <!-- Status -->
+        <div class="form-field">
+          <label class="form-label">Status</label>
+          <select class="form-input" id="modalStatus">
+            <option value="Completed">✓ Completed</option>
+            <option value="In Progress">⏳ In Progress</option>
+          </select>
+        </div>
+
+        <!-- Image URL -->
+        <div class="form-field">
+          <label class="form-label">Image URL (screenshot)</label>
+          <input class="form-input" type="text" id="modalImageUrl" placeholder="https://example.com/image.jpg" />
+        </div>
+
+        <!-- File Upload Alternative -->
+        <div class="form-field">
+          <label class="form-label">OR Upload Image</label>
+          <div class="upload-zone" onclick="document.getElementById('modalFile').click()">
+            <div class="upload-icon">📸</div>
+            <p id="uploadLabel">Click to upload — PNG, JPG, WebP supported</p>
+            <input type="file" id="modalFile" accept="image/*" style="display:none" onchange="handleFileSelect(this)" />
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex; gap:12px;">
+          <button class="modal-submit" id="submitBtn" onclick="submitProject()" style="flex:1;">Add to Portfolio ✓</button>
+          <button class="modal-submit" onclick="resetAndGoBack()" style="flex:1; background:var(--bg3); color:var(--text);">Back</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+
+  <!-- ============================================================
+       LIGHTBOX
+       Full-screen image viewer. Opens when user clicks "View" on
+       a project card. Closes by clicking anywhere outside the image
+       or the ✕ button.
+       ============================================================ -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" src="" alt="Project preview" />
+  </div>
+
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+        <p>Web developer from Rajahmundry building fast, professional websites for businesses across India.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="services.html">Business Websites</a></li>
+          <li><a href="services.html">E-Commerce Stores</a></li>
+          <li><a href="services.html">Landing Pages</a></li>
+          <li><a href="services.html">Site Redesign</a></li>
+          <li><a href="services.html">SEO & Speed</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Quick Links</h5>
+        <ul>
+          <li><a href="about.html">About Me</a></li>
+          <li><a href="portfolio.html">My Work</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Steve | Web Developer, Rajahmundry, AP</p>
+      <p>Built with passion in <a href="#">Rajahmundry 🇮🇳</a></p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"><div class="toast-dot"></div><span id="toastText"></span></div>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ============================================================
+       PORTFOLIO PAGE JAVASCRIPT
+       Handles: rendering cards, filtering, modal open/close,
+                file upload, adding/deleting projects, lightbox
+       ============================================================ */
+
+    // Admin password (CHANGE THIS TO YOUR DESIRED PASSWORD)
+    const ADMIN_PASSWORD = 'Vasuu@BMW';
+    let isAdminMode = false;
+    let editingProjectIndex = null;
+    let deletingProjectIndex = null;
+    let selectedImageData = null;
+    let currentFilter = 'all';
+
+    // Initialize portfolio with sample projects on first load
+    function initPortfolioData() {
+      const existing = localStorage.getItem('portfolioProjects');
+      if (!existing) {
+        const sampleProjects = [
+          {
+            title: 'E-Shop for Rajesh Textiles',
+            category: 'E-Commerce',
+            description: 'Full-featured online store with payment gateway integration',
+            client: 'Rajesh Textiles',
+            technologies: 'React, Node.js, MongoDB, Stripe',
+            liveUrl: 'https://example-eshop.com',
+            status: 'Completed',
+            image: null,
+            imageUrl: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=500&h=300&fit=crop',
+            dateAdded: new Date().toLocaleDateString()
+          }
+        ];
+        localStorage.setItem('portfolioProjects', JSON.stringify(sampleProjects));
+      }
+    }
+
+    // Get all projects from localStorage
+    function getAllProjects() {
+      const data = localStorage.getItem('portfolioProjects');
+      return data ? JSON.parse(data) : [];
+    }
+
+    // Save projects to localStorage
+    function saveProjects(projects) {
+      localStorage.setItem('portfolioProjects', JSON.stringify(projects));
+    }
+
+    /* ── MODAL: OPEN (shows password first) ── */
+    function openModal() {
+      // Reset form to show password section first
+      document.getElementById('passwordSection').style.display = 'block';
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('passwordError').style.display = 'none';
+      document.getElementById('modalOverlay').classList.add('open');
+      document.getElementById('adminPassword').focus();
+      editingProjectIndex = null;
+      selectedImageData = null;
+    }
+
+    /* ── VERIFY ADMIN PASSWORD ── */
+    function verifyAdminPassword() {
+      const password = document.getElementById('adminPassword').value;
+      
+      if (password === ADMIN_PASSWORD) {
+        // Check if we're in delete mode
+        if (deletingProjectIndex !== null) {
+          // Proceed with deletion after password verified
+          const allProjects = getAllProjects();
+          allProjects.splice(deletingProjectIndex, 1);
+          saveProjects(allProjects);
+          renderPortfolio();
+          showToast('🗑️ Project removed.');
+          closeModal();
+          deletingProjectIndex = null;
+        } else {
+          // Normal add/edit mode - show form section
+          document.getElementById('passwordSection').style.display = 'none';
+          document.getElementById('formSection').style.display = 'block';
+          resetFormFields();
+          document.getElementById('formTitle').textContent = 'Add New Project';
+          document.getElementById('submitBtn').textContent = 'Add to Portfolio ✓';
+        }
+      } else {
+        // Show error
+        document.getElementById('passwordError').style.display = 'block';
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminPassword').focus();
+      }
+    }
+
+    // Allow Enter key for password verification
+    document.addEventListener('DOMContentLoaded', () => {
+      initPortfolioData();
+      renderPortfolio();
+      const passwordInput = document.getElementById('adminPassword');
+      if (passwordInput) {
+        passwordInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') verifyAdminPassword();
+        });
+      }
+    });
+
+    /* ── MODAL: CLOSE ── */
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.getElementById('passwordSection').style.display = 'block';
+      document.getElementById('formSection').style.display = 'none';
+      isAdminMode = false;
+      editingProjectIndex = null;
+      deletingProjectIndex = null;
+    }
+
+    /* ── GO BACK FROM FORM TO PASSWORD ── */
+    function resetAndGoBack() {
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('passwordSection').style.display = 'block';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('adminPassword').focus();
+    }
+
+    /* ── RESET FORM FIELDS ── */
+    function resetFormFields() {
+      document.getElementById('modalTitle').value    = '';
+      document.getElementById('modalDesc').value     = '';
+      document.getElementById('modalUrl').value      = '';
+      document.getElementById('modalClient').value   = '';
+      document.getElementById('modalTech').value     = '';
+      document.getElementById('modalImageUrl').value = '';
+      document.getElementById('modalCategory').selectedIndex = 0;
+      document.getElementById('modalStatus').selectedIndex = 0;
+      document.getElementById('uploadLabel').textContent = 'Click to upload — PNG, JPG, WebP supported';
+      document.getElementById('modalFile').value     = '';
+      selectedImageData = null;
+      editingProjectIndex = null;
+    }
+
+    /* Close modal if user clicks outside the modal box */
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    /* ── EDIT PROJECT ── */
+    function editProject(index) {
+      editingProjectIndex = index;
+      const allProjects = getAllProjects();
+      const project = allProjects[index];
+
+      // Show password first
+      document.getElementById('passwordSection').style.display = 'block';
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('passwordError').style.display = 'none';
+      document.getElementById('modalOverlay').classList.add('open');
+      document.getElementById('adminPassword').focus();
+
+      // Store project data temporarily
+      window.projectToEdit = project;
+      window.isEditMode = true;
+    }
+
+    // Override password verification for edit mode
+    const originalVerify = verifyAdminPassword;
+    window.verifyAdminPassword = function() {
+      const password = document.getElementById('adminPassword').value;
+      
+      if (password === ADMIN_PASSWORD) {
+        document.getElementById('passwordSection').style.display = 'none';
+        document.getElementById('formSection').style.display = 'block';
+        
+        // If editing a project, load its data
+        if (window.projectToEdit && window.isEditMode) {
+          document.getElementById('modalTitle').value = window.projectToEdit.title;
+          document.getElementById('modalCategory').value = window.projectToEdit.category;
+          document.getElementById('modalDesc').value = window.projectToEdit.description || '';
+          document.getElementById('modalClient').value = window.projectToEdit.client || '';
+          document.getElementById('modalTech').value = window.projectToEdit.technologies || '';
+          document.getElementById('modalUrl').value = window.projectToEdit.liveUrl || '';
+          document.getElementById('modalStatus').value = window.projectToEdit.status || 'Completed';
+          document.getElementById('modalImageUrl').value = window.projectToEdit.imageUrl || '';
+          document.getElementById('formTitle').textContent = 'Edit Project';
+          document.getElementById('submitBtn').textContent = 'Update Project ✓';
+          window.projectToEdit = null;
+          window.isEditMode = false;
+        } else {
+          resetFormFields();
+          document.getElementById('formTitle').textContent = 'Add New Project';
+          document.getElementById('submitBtn').textContent = 'Add to Portfolio ✓';
+        }
+      } else {
+        document.getElementById('passwordError').style.display = 'block';
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminPassword').focus();
+      }
+    };
+
+    /* ── FILE UPLOAD HANDLER ── */
+    function handleFileSelect(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      document.getElementById('uploadLabel').innerHTML = `✅ <strong>${file.name}</strong> selected`;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        selectedImageData = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    /* ── ADD/UPDATE PROJECT (submit modal) ── */
+    function submitProject() {
+      const title = document.getElementById('modalTitle').value.trim();
+
+      if (!title) {
+        showToast('⚠️ Please enter a project title.');
+        return;
+      }
+
+      const project = {
+        title:        title,
+        category:     document.getElementById('modalCategory').value,
+        description:  document.getElementById('modalDesc').value.trim(),
+        client:       document.getElementById('modalClient').value.trim(),
+        technologies: document.getElementById('modalTech').value.trim(),
+        liveUrl:      document.getElementById('modalUrl').value.trim(),
+        status:       document.getElementById('modalStatus').value,
+        image:        selectedImageData || null,
+        imageUrl:     document.getElementById('modalImageUrl').value.trim(),
+        dateAdded:    new Date().toLocaleDateString()
+      };
+
+      const allProjects = getAllProjects();
+
+      if (editingProjectIndex !== null) {
+        allProjects[editingProjectIndex] = project;
+        saveProjects(allProjects);
+        showToast('✏️ Project updated successfully!');
+      } else {
+        allProjects.push(project);
+        saveProjects(allProjects);
+        showToast('🎉 Project added to portfolio!');
+      }
+
+      renderPortfolio();
+      closeModal();
+    }
+
+    /* ── DELETE PROJECT (requires password) ── */
+    function confirmDelete(index) {
+      // Set delete mode flag
+      deletingProjectIndex = index;
+      
+      // Show password modal
+      document.getElementById('passwordSection').style.display = 'block';
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('passwordError').style.display = 'none';
+      document.getElementById('modalOverlay').classList.add('open');
+      document.getElementById('adminPassword').focus();
+    }
+
+    /* ── RENDER ALL PROJECT CARDS ── */
+    function renderPortfolio() {
+      const grid = document.getElementById('portfolioGrid');
+      if (!grid) return;
+
+      const allProjects = getAllProjects();
+      
+      // Apply filter
+      const filtered = currentFilter === 'all'
+        ? allProjects
+        : allProjects.filter(p => p.category === currentFilter);
+
+      // Clear grid
+      grid.innerHTML = '';
+
+      // Render each project as a card
+      filtered.forEach((project, index) => {
+        // Find real index in full array
+        const realIndex = allProjects.indexOf(project);
+        
+        const card = document.createElement('div');
+        card.className = 'project-card reveal';
+
+        const imageHtml = project.imageUrl || project.image
+          ? `<img src="${project.imageUrl || project.image}" alt="${project.title}" />`
+          : `<div class="thumb-placeholder">
+               <div class="icon">🌐</div>
+               <p>No Preview</p>
+             </div>`;
+
+        card.innerHTML = `
+          <!-- Thumbnail area -->
+          <div class="card-thumb">
+            ${imageHtml}
+
+            <!-- Overlay with action buttons (visible on hover) -->
+            <div class="card-overlay">
+              <!-- Top row: Live, Edit, Delete buttons -->
+              <div class="overlay-btn-row">
+                ${project.liveUrl
+                  ? `<a href="${project.liveUrl}" target="_blank" class="overlay-btn ghost"> Live ↗️</a>`
+                  : ''
+                }
+                <button class="overlay-btn ghost" onclick="editProject(${realIndex})">Edit ✏️ </button>
+                <button class="overlay-btn ghost" onclick="confirmDelete(${realIndex})">Delete 🗑️ </button>
+              </div>
+
+              <!-- Bottom: Large View button -->
+              ${project.imageUrl || project.image
+                ? `<button class="overlay-btn overlay-btn-view" onclick="openLightbox('${project.imageUrl || project.image}')">View</button>`
+                : ''
+              }
+            </div>
+          </div>
+
+          <!-- Card text body -->
+          <div class="card-body">
+            <h3>${project.title}</h3>
+            <p>${project.description || 'Custom website project'}</p>
+            <div class="card-tags">
+              <span class="card-tag">${project.category}</span>
+              ${project.status ? `<span class="card-tag blue">${project.status}</span>` : ''}
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+
+        // Stagger animation delay for each card
+        setTimeout(() => card.classList.add('visible'), index * 70);
+      });
+
+      // Always add the "Add New Project" card at the end
+      const addCard = document.createElement('div');
+      addCard.className = 'add-project-card';
+      addCard.onclick = openModal;
+      addCard.innerHTML = `
+        <div class="add-icon-circle">+</div>
+        <div class="add-label">
+          <strong>Add New Project</strong>
+          <p>Upload screenshot of your work</p>
+        </div>
+      `;
+      grid.appendChild(addCard);
+    }
+
+    /* ── FILTER PROJECTS BY CATEGORY ── */
+    function filterProjects(category, clickedBtn) {
+      // Update active filter
+      currentFilter = category;
+
+      // Update button styles
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      clickedBtn.classList.add('active');
+
+      // Re-render
+      renderPortfolio();
+    }
+
+
+    /* ── LIGHTBOX: OPEN ── */
+    function openLightbox(imageSrc) {
+      if (!imageSrc) return;
+      document.getElementById('lightboxImg').src = imageSrc;
+      document.getElementById('lightbox').classList.add('open');
+    }
+
+    /* ── LIGHTBOX: CLOSE ── */
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+
+    /* Close lightbox if clicking outside the image */
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+      if (e.target === this) closeLightbox();
+    });
+
+
+    /* ── INIT ── */
+    // Render portfolio on page load
+    renderPortfolio();
+  </script>
+
+</body>
+</html>

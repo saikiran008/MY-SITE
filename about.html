@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ============================================================
+  PAGE: About (about.html)
+  DESCRIPTION: Personal bio, skills, tech stack, and background.
+  STYLES: css/style.css
+  SCRIPTS: js/main.js
+  ============================================================
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Steve.dev</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── ABOUT LAYOUT ── */
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 80px;
+      align-items: start;
+      margin-top: 72px;
+    }
+
+    /* Left column: bio text */
+    .about-left .big-quote {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+      color: var(--text);
+    }
+    .about-left .big-quote em {
+      color: var(--accent);
+      font-style: normal;
+    }
+    .about-left p {
+      margin-bottom: 16px;
+    }
+
+    /* Right column: stat cards (sticky so they stay visible while scrolling) */
+    .about-right {
+      position: sticky;
+      top: 110px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .stat-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      transition: border-color 0.3s;
+    }
+    .stat-card:hover {
+      border-color: var(--border2);
+    }
+    .stat-card .num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .stat-card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── TECH STACK GRID ── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 52px;
+    }
+    .stack-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 18px;
+      text-align: center;
+      transition: border-color 0.3s, transform 0.3s, background 0.3s;
+    }
+    .stack-card:hover {
+      border-color: rgba(232,255,71,0.3);
+      transform: translateY(-4px);
+      background: var(--bg4);
+    }
+    .stack-card .s-icon { font-size: 1.8rem; margin-bottom: 10px; }
+    .stack-card .s-name { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .stack-card .s-type { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.04em; }
+
+    /* ── SKILLS PILLS ── */
+    .skills-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .skill-pill {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .skill-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+      .about-layout { grid-template-columns: 1fr; gap: 48px; }
+      .about-right  { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor elements -->
+  <div class="cursor-ball" id="cursorBall"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="portfolio.html">Work</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><button class="theme-toggle" id="themeToggle">☀️</button></li>
+      <li><a href="contact.html" class="nav-hire">Hire Me</a></li>
+    </ul>
+    <!-- Mobile controls (hamburger + theme toggle) -->
+    <div class="mobile-controls">
+      <button class="theme-toggle" id="themeToggleMobile" title="Toggle theme">☀️</button>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" id="mobileClose">✕</button>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="services.html">Services</a>
+    <a href="portfolio.html">Work</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="contact.html">Contact</a>
+    <a href="contact.html" style="color:var(--accent)">Hire Me →</a>
+  </div>
+
+
+  <!-- ── PAGE HERO ── -->
+  <div class="page-hero">
+    <div class="section-tag">About Me</div>
+    <h1>Developer.<br><span style="color:var(--accent)">Builder.</span><br>Problem Solver.</h1>
+    <p>Based in Rajahmundry, East Godavari, Andhra Pradesh — turning ideas into websites that work.</p>
+  </div>
+
+
+  <!-- ── ABOUT BIO SECTION ── -->
+  <section class="section section-alt">
+    <div class="about-layout">
+
+      <!-- Left: Bio text -->
+      <div class="about-left reveal">
+        <div class="big-quote">
+          I build websites that actually <em>work</em> for your business.
+        </div>
+
+        <p>
+          Hey, I'm Steve — a web developer from Rajahmundry, Andhra Pradesh.
+          I design and develop fast, beautiful, fully custom websites that help
+          local and online businesses grow.
+        </p>
+        <p>
+          I've delivered websites across many industries — from coaching institutes
+          and clinics to retail shops and service businesses. Every project gets the
+          same level of attention: clean code, thoughtful design, and a site that
+          loads in under 2 seconds.
+        </p>
+        <p>
+          I understand what small businesses in AP actually need — not an overpriced
+          agency quote, but a professional website that gets real results. I work
+          directly with you, with zero middlemen, and deliver sites that make your
+          business look world-class online.
+        </p>
+        <p>
+          My approach is simple: understand your business, build exactly what you need,
+          deliver fast, and stay available whenever you need changes or updates.
+        </p>
+
+        <!-- Skill pills -->
+        <div class="skills-pills">
+          <span class="skill-pill">HTML5 / CSS3</span>
+          <span class="skill-pill">JavaScript</span>
+          <span class="skill-pill">MERN Stack</span>
+          <span class="skill-pill">Responsive Design</span>
+          <span class="skill-pill">E-Commerce</span>
+          <span class="skill-pill">SEO Basics</span>
+          <span class="skill-pill">Performance Optimisation</span>
+          <span class="skill-pill">UI / UX Design</span>
+          <span class="skill-pill">Google Analytics</span>
+          <span class="skill-pill">Contact Forms</span>
+        </div>
+
+        <div style="margin-top:36px; display:flex; gap:14px; flex-wrap:wrap;">
+          <a href="portfolio.html" class="btn-primary">See My Work →</a>
+          <a href="contact.html"   class="btn-ghost">Get In Touch</a>
+        </div>
+      </div>
+
+      <!-- Right: Stats cards (sticky) -->
+      <div class="about-right reveal delay-2">
+        <div class="stat-card">
+          <div class="num">10+</div>
+          <h4>Websites Delivered</h4>
+          <p>Built and launched websites for businesses across Rajahmundry and East Godavari district.</p>
+        </div>
+        <div class="stat-card">
+          <div class="num">48h</div>
+          <h4>Average Turnaround</h4>
+          <p>Most standard websites are ready to go live within 48 to 72 hours of project kick-off.</p>
+        </div>
+        <div class="stat-card">
+          <div class="num">100%</div>
+          <h4>Client Satisfaction</h4>
+          <p>Every client gets exactly what they asked for — no surprises, no hidden charges.</p>
+        </div>
+        <div class="stat-card">
+          <div class="num">₹3,000</div>
+          <h4>Transparent Pricing</h4>
+          <p>Honest, flat-rate pricing. You know the cost before work begins — always.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── TECH STACK SECTION ── -->
+  <section class="section">
+    <div class="reveal">
+      <div class="section-tag">Tech Stack</div>
+      <h2 class="section-title">Tools of the Trade</h2>
+      <p class="section-sub">I use modern, industry-proven technologies to build websites that are fast, secure, and easy to manage.</p>
+    </div>
+
+    <div class="stack-grid reveal delay-2">
+      <div class="stack-card"><div class="s-icon">🌐</div><div class="s-name">HTML5</div><div class="s-type">Markup</div></div>
+      <div class="stack-card"><div class="s-icon">🎨</div><div class="s-name">CSS3</div><div class="s-type">Styling</div></div>
+      <div class="stack-card"><div class="s-icon">⚡</div><div class="s-name">JavaScript</div><div class="s-type">Interaction</div></div>
+      <div class="stack-card"><div class="s-icon">⚛️</div><div class="s-name">React</div><div class="s-type">Frontend</div></div>
+      <div class="stack-card"><div class="s-icon">🎯</div><div class="s-name">Tailwind CSS</div><div class="s-type">Utility CSS</div></div>
+      <div class="stack-card"><div class="s-icon">🟢</div><div class="s-name">Node.js</div><div class="s-type">Backend</div></div>
+      <div class="stack-card"><div class="s-icon">🐍</div><div class="s-name">Python</div><div class="s-type">Backend</div></div>
+      <div class="stack-card"><div class="s-icon">🍃</div><div class="s-name">MongoDB</div><div class="s-type">NoSQL DB</div></div>
+      <div class="stack-card"><div class="s-icon">📦</div><div class="s-name">MySQL</div><div class="s-type">Relational DB</div></div>
+      <div class="stack-card"><div class="s-icon">🐙</div><div class="s-name">Git</div><div class="s-type">Version Control</div></div>
+      <div class="stack-card"><div class="s-icon">📱</div><div class="s-name">Responsive</div><div class="s-type">Mobile-First</div></div>
+      <div class="stack-card"><div class="s-icon">🛒</div><div class="s-name">E-Commerce</div><div class="s-type">Online Store</div></div>
+      <div class="stack-card"><div class="s-icon">🔍</div><div class="s-name">SEO</div><div class="s-type">Search Rank</div></div>
+      <div class="stack-card"><div class="s-icon">🚀</div><div class="s-name">Performance</div><div class="s-type">Speed Optimised</div></div>
+      <div class="stack-card"><div class="s-icon">🔒</div><div class="s-name">Security</div><div class="s-type">SSL & Backups</div></div>
+      <div class="stack-card"><div class="s-icon">📊</div><div class="s-name">Analytics</div><div class="s-type">Google Insights</div></div>
+      <div class="stack-card"><div class="s-icon">✉️</div><div class="s-name">Contact Forms</div><div class="s-type">Lead Capture</div></div>
+      <div class="stack-card"><div class="s-icon">🗺️</div><div class="s-name">Google Maps</div><div class="s-type">Local SEO</div></div>
+      <div class="stack-card"><div class="s-icon">☁️</div><div class="s-name">Cloud Hosting</div><div class="s-type">99.9% Uptime</div></div>
+      <div class="stack-card"><div class="s-icon">📝</div><div class="s-name">VS Code</div><div class="s-type">Development</div></div>
+      <div class="stack-card"><div class="s-icon">🔧</div><div class="s-name">Webpack</div><div class="s-type">Module Bundler</div></div>
+      <div class="stack-card"><div class="s-icon">📚</div><div class="s-name">REST API</div><div class="s-type">API Design</div></div>
+    </div>
+  </section>
+
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+        <p>Web developer from Rajahmundry building fast, professional websites for businesses across India.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="services.html">Business Websites</a></li>
+          <li><a href="services.html">E-Commerce Stores</a></li>
+          <li><a href="services.html">Landing Pages</a></li>
+          <li><a href="services.html">Site Redesign</a></li>
+          <li><a href="services.html">SEO & Speed</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Quick Links</h5>
+        <ul>
+          <li><a href="about.html">About Me</a></li>
+          <li><a href="portfolio.html">My Work</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Steve | Web Developer, Rajahmundry, AP</p>
+      <p>Built with passion in <a href="#">Rajahmundry 🇮🇳</a></p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"><div class="toast-dot"></div><span id="toastText"></span></div>
+
+  <script src="js/main.js"></script>
+
+  <script>
+    // Sync mobile theme toggle with desktop one
+    const mobileTog = document.getElementById('themeToggleMobile');
+    if (mobileTog) {
+      mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      mobileTog.addEventListener('click', () => {
+        document.getElementById('themeToggle').click();
+        mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      });
+    }
+  </script>
+</body>
+</html>

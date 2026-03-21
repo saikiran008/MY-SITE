@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ============================================================
+  PAGE: Contact (contact.html)
+  DESCRIPTION: Contact form + WhatsApp/email/location details.
+               Form validation is handled in js/main.js via
+               handleContactForm(). Replace with EmailJS or a
+               backend endpoint for real submissions.
+  STYLES: css/style.css
+  SCRIPTS: js/main.js
+  ============================================================
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Steve.dev</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── CONTACT LAYOUT ── */
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 80px;
+      margin-top: 72px;
+      align-items: start;
+    }
+
+    /* Left side: contact info */
+    .contact-info h3 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .contact-info > p { margin-bottom: 32px; }
+
+    /* Contact detail cards (WhatsApp, email, location) */
+    .contact-items { display: flex; flex-direction: column; gap: 12px; }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.93rem;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .contact-item:hover {
+      border-color: rgba(232,255,71,0.3);
+      background: rgba(232,255,71,0.03);
+    }
+    .contact-item .ci-icon { font-size: 1.15rem; width: 32px; text-align: center; }
+    .contact-item .ci-label { color: var(--muted); font-size: 0.78rem; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .contact-item .ci-value { font-weight: 500; }
+
+    /* Availability indicator */
+    .availability-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      color: var(--muted2);
+      font-size: 0.85rem;
+    }
+    .avail-dot {
+      width: 8px; height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(1.5); }
+    }
+
+    /* Right side: contact form */
+    .contact-form { display: flex; flex-direction: column; gap: 14px; }
+
+    /* Two-column row for name + phone */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .cf-field { display: flex; flex-direction: column; gap: 6px; }
+    .cf-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .cf-input {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.93rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+      width: 100%;
+    }
+    .cf-input:focus { border-color: rgba(232,255,71,0.4); }
+    .cf-input::placeholder { color: var(--muted); }
+    textarea.cf-input { resize: vertical; min-height: 140px; }
+
+    /* Submit button */
+    .cf-submit {
+      background: var(--accent);
+      color: #08080f;
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 4px;
+    }
+    .cf-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(232,255,71,0.3);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .contact-layout { grid-template-columns: 1fr; gap: 48px; }
+      .form-row       { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor elements -->
+  <div class="cursor-ball" id="cursorBall"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="portfolio.html">Work</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+      <li><button class="theme-toggle" id="themeToggle">☀️</button></li>
+      <li><a href="contact.html" class="nav-hire">Hire Me</a></li>
+    </ul>
+    <!-- Mobile controls (hamburger + theme toggle) -->
+    <div class="mobile-controls">
+      <button class="theme-toggle" id="themeToggleMobile" title="Toggle theme">☀️</button>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" id="mobileClose">✕</button>
+    <a href="index.html">Home</a><a href="about.html">About</a>
+    <a href="services.html">Services</a><a href="portfolio.html">Work</a>
+    <a href="pricing.html">Pricing</a><a href="contact.html">Contact</a>
+    <a href="contact.html" style="color:var(--accent)">Hire Me →</a>
+  </div>
+
+  <!-- ── PAGE HERO ── -->
+  <div class="page-hero">
+    <div class="section-tag">Get In Touch</div>
+    <h1>Let's Work <span style="color:var(--accent)">Together</span></h1>
+    <p>Tell me about your project and I'll get back to you within a few hours.</p>
+  </div>
+
+  <!-- ── CONTACT SECTION ── -->
+  <section class="section section-alt">
+    <div class="contact-layout">
+
+      <!-- LEFT: Contact info cards -->
+      <div class="contact-info reveal">
+        <h3>I'm available for new projects right now.</h3>
+        <p>
+          Based in Rajahmundry, AP. Happy to meet locally or work with clients
+          anywhere in India via WhatsApp. WhatsApp is the fastest way to reach me.
+        </p>
+
+        <div class="contact-items">
+
+          <!-- WhatsApp — REPLACE the number below with your real number -->
+          <a href="https://wa.me/918179845326" class="contact-item" target="_blank">
+            <span class="ci-icon">📱</span>
+            <div>
+              <div class="ci-label">WhatsApp (Fastest)</div>
+              <!-- TODO: Replace XXXXXXXXXX with your actual WhatsApp number -->
+              <div class="ci-value">+91 81798-45326</div>
+            </div>
+          </a>
+
+          <!-- Email — REPLACE with your real email -->
+          <a href="mailto:Saikiranrjy008@gmail.com" class="contact-item">
+            <span class="ci-icon">✉️</span>
+            <div>
+              <div class="ci-label">Email</div>
+              <!-- TODO: Replace with your actual email address -->
+              <div class="ci-value">Saikiranrjy@gmail.com</div>
+            </div>
+          </a>
+
+          <!-- Location -->
+          <div class="contact-item">
+            <span class="ci-icon">📍</span>
+            <div>
+              <div class="ci-label">Location</div>
+              <div class="ci-value">Rajahmundry, East Godavari, Andhra Pradesh</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Availability status -->
+        <div class="availability-line">
+          <div class="avail-dot"></div>
+          <span>Currently available — taking new projects</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: Contact form -->
+      <div class="reveal delay-2">
+        <div class="contact-form">
+
+          <!-- Name + Phone in one row -->
+          <div class="form-row">
+            <div class="cf-field">
+              <label class="cf-label">Your Name *</label>
+              <input class="cf-input" type="text" id="cfName" placeholder="Enter your name" />
+            </div>
+            <div class="cf-field">
+              <label class="cf-label">WhatsApp / Phone *</label>
+              <input class="cf-input" type="tel" id="cfPhone" placeholder="+91 XXXXX XXXXX" />
+            </div>
+          </div>
+
+          <!-- Email (optional) -->
+          <div class="cf-field">
+            <label class="cf-label">Email (optional)</label>
+            <input class="cf-input" type="email" id="cfEmail" placeholder="your@email.com" />
+          </div>
+
+          <!-- Type of website -->
+          <div class="cf-field">
+            <label class="cf-label">Type of Website Needed</label>
+            <input class="cf-input" type="text" id="cfType" placeholder="e.g. Business website, E-Commerce store..." />
+          </div>
+
+          <!-- Message -->
+          <div class="cf-field">
+            <label class="cf-label">Tell Me About Your Business</label>
+            <textarea class="cf-input" id="cfMessage" placeholder="What does your business do? What pages do you need? Any specific requirements?"></textarea>
+          </div>
+
+          <!-- Submit — calls handleContactForm() from main.js -->
+          <button class="cf-submit" onclick="handleContactForm()">Send Message →</button>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand"><a href="index.html" class="nav-logo">Steve<span>.</span>dev</a><p>Web developer from Rajahmundry building fast, professional websites across India.</p></div>
+      <div class="footer-col"><h5>Services</h5><ul><li><a href="services.html">Business Websites</a></li><li><a href="services.html">E-Commerce Stores</a></li><li><a href="services.html">Landing Pages</a></li><li><a href="services.html">SEO & Speed</a></li></ul></div>
+      <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="about.html">About Me</a></li><li><a href="portfolio.html">My Work</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 Steve | Web Developer, Rajahmundry, AP</p><p>Built with passion in <a href="#">Rajahmundry 🇮🇳</a></p></div>
+  </footer>
+
+  <div class="toast" id="toast"><div class="toast-dot"></div><span id="toastText"></span></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+    // Sync mobile theme toggle with desktop one
+    const mobileTog = document.getElementById('themeToggleMobile');
+    if (mobileTog) {
+      mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      mobileTog.addEventListener('click', () => {
+        document.getElementById('themeToggle').click();
+        mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,545 @@
+/* ============================================================
+   STEVE.DEV — GLOBAL STYLESHEET
+   Contains: CSS variables, dark/light theme, reset, shared
+   components used across all pages.
+   ============================================================ */
+
+/* ── 1. GOOGLE FONTS ── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+/* ── 2. CSS RESET ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── 3. DARK MODE VARIABLES (default) ── */
+:root {
+  --bg:        #08080f;
+  --bg2:       #0f0f18;
+  --bg3:       #161621;
+  --bg4:       #1e1e2e;
+  --text:      #f0ede8;
+  --muted:     #6a6a80;
+  --muted2:    #9898b0;
+  --accent:    #e8ff47;       /* Yellow-green highlight */
+  --accent2:   #47b8ff;       /* Blue accent */
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.13);
+  --shadow:    0 8px 32px rgba(0,0,0,0.4);
+  --card-bg:   rgba(255,255,255,0.03);
+  --nav-bg:    rgba(8,8,15,0.90);
+}
+
+/* ── 4. LIGHT MODE VARIABLES ── */
+/* Applied when <html> has class="light" */
+html.light {
+  --bg:        #f5f5f0;
+  --bg2:       #eaeae4;
+  --bg3:       #dfdfd8;
+  --bg4:       #d4d4cc;
+  --text:      #111118;
+  --muted:     #888890;
+  --muted2:    #555560;
+  --accent:    #b8cc00;       /* Darker yellow for light bg */
+  --accent2:   #0080cc;
+  --border:    rgba(0,0,0,0.08);
+  --border2:   rgba(0,0,0,0.14);
+  --shadow:    0 8px 32px rgba(0,0,0,0.12);
+  --card-bg:   rgba(0,0,0,0.03);
+  --nav-bg:    rgba(245,245,240,0.90);
+}
+
+/* ── 5. BASE BODY STYLES ── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: none; /* Hide default cursor */
+}
+
+/* Custom cursor — main ball */
+.cursor-ball {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 12px rgba(232, 255, 71, 0.5);
+}
+
+/* Custom cursor — trailing circle */
+.cursor-trail {
+  position: fixed;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  opacity: 0.4;
+}
+
+/* ── 6. TYPOGRAPHY ── */
+h1, h2, h3, h4, h5 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+p {
+  line-height: 1.75;
+  color: var(--muted2);
+  font-weight: 300;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ── 7. UTILITY CLASSES ── */
+
+/* Section tag (small uppercase label above headings) */
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.section-tag::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+  display: block;
+}
+
+/* Main section heading */
+.section-title {
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 18px;
+  color: var(--text);
+}
+
+/* Subtitle / description under headings */
+.section-sub {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--muted2);
+  font-weight: 300;
+  max-width: 500px;
+}
+
+/* Generic section padding */
+.section {
+  padding: 110px 6%;
+  position: relative;
+}
+
+.section-alt {
+  background-color: var(--bg2);
+}
+
+/* ── 8. BUTTONS ── */
+
+/* Primary CTA button (yellow) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: #08080f;
+  padding: 14px 32px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(232, 255, 71, 0.35);
+}
+
+/* Ghost / outline button */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--text);
+  padding: 14px 32px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: 1px solid var(--border2);
+  transition: border-color 0.2s ease, background 0.2s ease;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  background: rgba(232, 255, 71, 0.05);
+}
+
+/* ── 9. NAVIGATION ── */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 20px 6%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Nav gets frosted glass background on scroll (added via JS) */
+.navbar.scrolled {
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Logo */
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.nav-logo span {
+  color: var(--accent);
+}
+
+/* Nav link list */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--muted2);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  letter-spacing: 0.02em;
+}
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text);
+}
+
+/* Hire Me button in nav */
+.nav-hire {
+  background: var(--accent);
+  color: #08080f !important;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: transform 0.2s, box-shadow 0.2s !important;
+}
+.nav-hire:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(232, 255, 71, 0.35);
+}
+
+/* Dark/Light toggle button */
+.theme-toggle {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  background: var(--bg4);
+  transform: rotate(20deg);
+}
+
+/* Mobile controls wrapper (hamburger + mobile theme toggle) */
+.mobile-controls {
+  display: none;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Mobile hamburger (shown on small screens) */
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+}
+.hamburger span {
+  width: 24px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Mobile nav drawer */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg);
+  z-index: 900;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+.mobile-nav.open {
+  display: flex;
+}
+.mobile-nav a {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.mobile-nav a:hover {
+  color: var(--accent);
+}
+.mobile-close {
+  visibility: hidden;
+  position: absolute;
+  top: 24px;
+  right: 7%;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* ── 10. FOOTER ── */
+.footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 60px 6% 36px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 48px;
+}
+
+.footer-brand p {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  max-width: 300px;
+  margin-top: 14px;
+}
+
+.footer-col h5 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted2);
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-col ul a {
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.footer-col ul a:hover {
+  color: var(--accent);
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-bottom p {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.footer-bottom a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ── 11. TOAST NOTIFICATION ── */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--bg2);
+  border: 1px solid rgba(232, 255, 71, 0.3);
+  border-radius: 12px;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+  font-size: 0.88rem;
+  color: var(--text);
+  /* Hidden by default */
+  transform: translateY(80px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+.toast-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── 12. SCROLL REVEAL ANIMATION ── */
+/* Elements with .reveal start hidden, become visible via JS */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal.delay-1 { transition-delay: 0.1s; }
+.reveal.delay-2 { transition-delay: 0.2s; }
+.reveal.delay-3 { transition-delay: 0.3s; }
+
+/* ── 13. ACTIVE NAV LINK highlight per page ── */
+/* Each page's <script> adds .active to the matching nav link */
+.nav-links a.active {
+  color: var(--accent) !important;
+}
+
+/* ── 14. PAGE HERO (shared across inner pages) ── */
+.page-hero {
+  padding: 160px 6% 80px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.page-hero .section-tag {
+  margin-bottom: 16px;
+}
+.page-hero h1 {
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
+  margin-bottom: 20px;
+}
+.page-hero p {
+  font-size: 1.05rem;
+  max-width: 520px;
+}
+
+/* ── 15. RESPONSIVE BREAKPOINTS ── */
+@media (max-width: 960px) {
+  .nav-links {
+    display: none; /* Hidden on mobile, use hamburger */
+  }
+  .mobile-controls {
+    display: flex; /* Show mobile controls on small screens */
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .section {
+    padding: 80px 5%;
+  }
+}
+
+@media (max-width: 600px) {
+  .btn-primary,
+  .btn-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+  .page-hero {
+    padding: 130px 5% 60px;
+  }
+}

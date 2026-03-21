@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ============================================================
+  PAGE: Portfolio (portfolio.html)
+  VERSION: Static — No Firebase, No localStorage dependency
+  
+  HOW TO ADD YOUR PROJECTS:
+  → Scroll down to the PROJECTS array inside <script>
+  → Copy one existing project object and paste a new one
+  → Fill in: title, category, description, imageUrl, liveUrl, status
+  → imageUrl → use a hosted link OR a local path like "images/site1.png"
+  → Save file → refresh browser → project appears instantly!
+
+  STYLES: css/style.css (shared) + local <style> below
+  SCRIPTS: js/main.js (shared) + local <script> below
+  ============================================================
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio — Steve.dev</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* ============================================================
+       PORTFOLIO PAGE LOCAL STYLES
+       Global styles (navbar, footer, buttons) → css/style.css
+       ============================================================ */
+
+    /* Grid of project cards */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 12px;
+    }
+
+    /* ── PROJECT CARD ── */
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      /* Starts invisible — JS adds .visible to animate in */
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s ease,
+                  border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .project-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .project-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+    }
+
+    /* Card thumbnail */
+    .card-thumb {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      background: var(--bg4);
+      flex-shrink: 0;
+    }
+    .card-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .project-card:hover .card-thumb img { transform: scale(1.05); }
+
+    /* Placeholder when no image is provided */
+    .thumb-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; color: var(--muted);
+    }
+    .thumb-placeholder .icon { font-size: 2.6rem; opacity: 0.35; }
+    .thumb-placeholder p    { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.5; }
+
+    /* Hover overlay — shows action buttons */
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.72);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; padding: 16px;
+      opacity: 0; transition: opacity 0.3s ease;
+      backdrop-filter: blur(3px);
+    }
+    .project-card:hover .card-overlay { opacity: 1; }
+
+    /* Action buttons row inside overlay */
+    .overlay-btn-row {
+      display: flex; gap: 8px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .overlay-btn {
+      padding: 9px 20px; border-radius: 6px;
+      border: 1px solid var(--accent);
+      background: var(--accent); color: #000;
+      font-weight: 700; cursor: pointer; font-size: 0.82rem;
+      transition: transform 0.2s; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .overlay-btn:hover { transform: scale(1.05); }
+    .overlay-btn.ghost { background: transparent; color: var(--accent); }
+    .overlay-btn.ghost:hover { background: rgba(232,255,71,0.1); }
+
+    /* Card text body */
+    .card-body {
+      padding: 20px; flex: 1;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .card-body h3 { font-size: 1.1rem; color: var(--text); font-weight: 700; }
+    .card-body p  { font-size: 0.87rem; color: var(--muted2); line-height: 1.65; }
+
+    /* Tags (category + status) */
+    .card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 6px; }
+    .card-tag {
+      padding: 5px 12px; border-radius: 6px;
+      background: rgba(232,255,71,0.1); color: var(--accent);
+      font-size: 0.72rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .card-tag.blue { background: rgba(71,184,255,0.1); color: var(--accent2); }
+
+    /* ── FILTER BAR ── */
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 9px 20px; border-radius: 8px;
+      border: 1px solid var(--border2); background: var(--bg3);
+      color: var(--muted2); cursor: pointer; font-weight: 500;
+      transition: all 0.25s ease; font-size: 0.88rem;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .filter-btn:hover  { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+    /* Controls row above the grid */
+    .port-controls {
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap;
+      gap: 18px; margin-bottom: 36px;
+    }
+
+    /* Empty state (no projects match filter) */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center; padding: 60px 20px; color: var(--muted);
+    }
+    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 14px; opacity: 0.4; }
+    .empty-state p { font-size: 0.92rem; line-height: 1.8; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1001; padding: 20px;
+    }
+    .lightbox.open { opacity: 1; pointer-events: auto; }
+    .lightbox-close {
+      position: absolute; top: 22px; right: 22px;
+      background: rgba(255,255,255,0.1); border: none;
+      font-size: 1.3rem; cursor: pointer; color: var(--text);
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+    #lightboxImg { max-width: 90vw; max-height: 88vh; border-radius: 10px; object-fit: contain; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--bg2); border: 1px solid rgba(232,255,71,0.3);
+      border-radius: 11px; padding: 13px 20px;
+      display: flex; align-items: center; gap: 9px;
+      z-index: 9999; font-size: 0.86rem; color: var(--text);
+      transform: translateY(80px); opacity: 0; pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
+
+    @media (max-width: 768px) {
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .port-controls  { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor-ball"  id="cursorBall"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="portfolio.html">Work</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><button class="theme-toggle" id="themeToggle">☀️</button></li>
+      <li><a href="contact.html" class="nav-hire">Hire Me</a></li>
+    </ul>
+    <!-- Mobile controls (hamburger + theme toggle) -->
+    <div class="mobile-controls">
+      <button class="theme-toggle" id="themeToggleMobile" title="Toggle theme">☀️</button>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" id="mobileClose">✕</button>
+    <a href="index.html">Home</a><a href="about.html">About</a>
+    <a href="services.html">Services</a><a href="portfolio.html">Work</a>
+    <a href="pricing.html">Pricing</a><a href="contact.html">Contact</a>
+    <a href="contact.html" style="color:var(--accent)">Hire Me →</a>
+  </div>
+
+
+  <!-- ── PAGE HERO ── -->
+  <div class="page-hero">
+    <div class="section-tag">Portfolio</div>
+    <h1>My <span style="color:var(--accent)">Work</span></h1>
+    <p>Websites I've designed and built for businesses and clients across Rajahmundry and beyond.</p>
+  </div>
+
+  <!-- ── PORTFOLIO SECTION ── -->
+  <section class="section">
+    <div class="port-controls">
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
+        <button class="filter-btn" onclick="filterProjects('Business', this)">Business</button>
+        <button class="filter-btn" onclick="filterProjects('E-Commerce', this)">E-Commerce</button>
+        <button class="filter-btn" onclick="filterProjects('Coaching', this)">Coaching</button>
+        <button class="filter-btn" onclick="filterProjects('Other', this)">Other</button>
+      </div>
+      <a href="contact.html" class="btn-primary" style="font-size:0.86rem; padding:11px 24px;">
+        Start a Project →
+      </a>
+    </div>
+
+    <!-- Cards rendered by JS -->
+    <div class="portfolio-grid" id="portfolioGrid"></div>
+  </section>
+
+  <!-- ── LIGHTBOX ── -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" src="" alt="Project screenshot" />
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+        <p>Web developer from Rajahmundry building fast, professional websites for businesses across India.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="services.html">Business Websites</a></li>
+          <li><a href="services.html">E-Commerce Stores</a></li>
+          <li><a href="services.html">Landing Pages</a></li>
+          <li><a href="services.html">Site Redesign</a></li>
+          <li><a href="services.html">SEO & Speed</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Quick Links</h5>
+        <ul>
+          <li><a href="about.html">About Me</a></li>
+          <li><a href="portfolio.html">My Work</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Steve | Web Developer, Rajahmundry, AP</p>
+      <p>Built with passion in <a href="#">Rajahmundry 🇮🇳</a></p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"><div class="toast-dot"></div><span id="toastText">Done!</span></div>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ============================================================
+       PORTFOLIO JAVASCRIPT — Static version (no Firebase)
+
+       ★★★ TO ADD A PROJECT — edit the PROJECTS array below ★★★
+
+       Fields for each project:
+         title       → Name shown on the card
+         category    → "Business" | "E-Commerce" | "Coaching" | "Other"
+         description → One or two sentences about what you built
+         imageUrl    → Screenshot link or "" for no image
+                       Options:
+                         "" — shows a placeholder icon
+                         "images/mysite.png" — local file in /images folder
+                         "https://i.imgur.com/abc.jpg" — hosted image URL
+         liveUrl     → Link to live site, or "" if none
+         status      → Blue tag text: "Live" | "Completed" | "2024" | etc.
+       ============================================================ */
+
+    const PROJECTS = [
+
+      /* ── PROJECT 1
+         Replace the values below with your actual project details.
+         For imageUrl: take a screenshot of your LocalWP site,
+         upload it to imgur.com (free), and paste the link here. ── */
+      {
+        title:       "Coaching Centre Website",
+        category:    "Coaching",
+        description: "Full website for a coaching institute with course listings, batch timings, faculty profiles, and student enquiry form.",
+        imageUrl:    "https://thumbs.dreamstime.com/b/business-coaching-concept-businessman-selecting-interface-54909779.jpg",        /* ← Paste screenshot link here */
+        liveUrl:     "https://www.youtube.com/",        /* ← Paste live URL here */
+        status:      "Completed hr"
+      },
+
+      /* ── PROJECT 2 ── */
+      {
+        title:       "Clinic & Hospital Website",
+        category:    "Business",
+        description: "Professional site for a multi-speciality clinic with doctor profiles, appointment booking, and Google Maps integration.",
+        imageUrl:    "",
+        liveUrl:     "",
+        status:      "Live"
+      },
+
+      /* ── PROJECT 3 ── */
+      {
+        title:       "Online Saree Store",
+        category:    "E-Commerce",
+        description: "E-commerce store for a traditional saree business — product catalogue, WhatsApp order, and category filters.",
+        imageUrl:    "",
+        liveUrl:     "",
+        status:      "Live"
+      },
+
+      /* ── PROJECT 4 ── */
+      {
+        title:       "Real Estate Listings Site",
+        category:    "Business",
+        description: "Property listing website for a local real estate agent with contact forms, photo galleries, and location maps.",
+        imageUrl:    "",
+        liveUrl:     "",
+        status:      "Completed"
+      },
+
+      /* ── PROJECT 5 ── */
+      {
+        title:       "Restaurant Website",
+        category:    "Business",
+        description: "Clean restaurant site with menu, gallery, opening hours, reservation form, and Google Maps embed.",
+        imageUrl:    "",
+        liveUrl:     "",
+        status:      "Completed"
+      },
+
+      /* ════════════════════════════════════════════════════════
+         ADD YOUR REAL PROJECTS BELOW THIS LINE
+         Copy this block and paste as many times as you need:
+
+      {
+        title:       "Your Project Title",
+        category:    "Business",
+        description: "Short description of what you built.",
+        imageUrl:    "https://your-image-url.com/screenshot.png",
+        liveUrl:     "https://yourclientsite.com",
+        status:      "Live"
+      },
+
+         ════════════════════════════════════════════════════════ */
+
+    ]; /* ← Keep this closing bracket */
+
+
+    /* ── FILTER ──────────────────────────────────────────────── */
+
+    let currentFilter = 'all';
+
+    function filterProjects(category, btn) {
+      currentFilter = category;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderPortfolio();
+    }
+
+
+    /* ── RENDER CARDS ────────────────────────────────────────── */
+
+    function renderPortfolio() {
+      const grid = document.getElementById('portfolioGrid');
+      if (!grid) return;
+
+      // Apply filter
+      const list = currentFilter === 'all'
+        ? PROJECTS
+        : PROJECTS.filter(p => p.category === currentFilter);
+
+      grid.innerHTML = '';
+
+      // Show empty state if nothing matches
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <p>No projects in this category yet.<br>
+               <a href="contact.html" style="color:var(--accent);">Start a project →</a></p>
+          </div>`;
+        return;
+      }
+
+      // Build and inject each card
+      list.forEach((p, i) => {
+
+        // Thumbnail: real image OR placeholder icon
+        const thumb = p.imageUrl
+          ? `<img src="${p.imageUrl}" alt="${p.title}" loading="lazy" />`
+          : `<div class="thumb-placeholder">
+               <div class="icon">🌐</div>
+               <p>No Preview</p>
+             </div>`;
+
+        // Overlay buttons
+        const viewBtn = p.imageUrl
+          ? `<button class="overlay-btn" onclick="openLightbox('${p.imageUrl}')">View 🔍</button>`
+          : '';
+        const liveBtn = p.liveUrl
+          ? `<a href="${p.liveUrl}" target="_blank" class="overlay-btn ghost">Live ↗</a>`
+          : '';
+
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.innerHTML = `
+          <div class="card-thumb">
+            ${thumb}
+            <div class="card-overlay">
+              <div class="overlay-btn-row">${viewBtn}${liveBtn}</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <h3>${p.title}</h3>
+            <p>${p.description}</p>
+            <div class="card-tags">
+              <span class="card-tag">${p.category}</span>
+              ${p.status ? `<span class="card-tag blue">${p.status}</span>` : ''}
+            </div>
+          </div>`;
+
+        grid.appendChild(card);
+        // Stagger animation: each card appears slightly after the previous
+        setTimeout(() => card.classList.add('visible'), i * 80);
+      });
+    }
+
+
+    /* ── LIGHTBOX ────────────────────────────────────────────── */
+
+    function openLightbox(src) {
+      if (!src) return;
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+      if (e.target === this) closeLightbox();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+
+    /* ── INIT ────────────────────────────────────────────────── */
+    renderPortfolio();
+
+  </script>
+</body>
+</html>

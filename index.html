@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ============================================================
+  PAGE: Home (index.html)
+  DESCRIPTION: Hero landing page with intro, stats, and
+               quick links to all other sections.
+  STYLES: css/style.css
+  SCRIPTS: js/main.js
+  ============================================================
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Steve.dev — Web Developer, Rajahmundry</title>
+  <meta name="description" content="Professional web developer based in Rajahmundry, AP. I build fast, modern websites for businesses across India." />
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Page-specific styles -->
+  <style>
+    /* ── HERO SECTION ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 6% 90px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Grid lines in background */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+      pointer-events: none;
+    }
+    html.light .hero-grid {
+      background-image:
+        linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    }
+
+    /* Glow orbs for atmosphere */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .orb-1 {
+      width: 650px; height: 650px;
+      background: radial-gradient(circle, rgba(232,255,71,0.07) 0%, transparent 65%);
+      top: 50%; left: 55%;
+      transform: translate(-50%, -50%);
+    }
+    .orb-2 {
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(71,184,255,0.06) 0%, transparent 65%);
+      top: 15%; right: 8%;
+    }
+
+    /* Blinking availability dot */
+    .availability-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 28px;
+      animation: fadeUp 0.9s ease both;
+    }
+    .badge-dot {
+      width: 7px; height: 7px;
+      background: #4ade80; /* green = available */
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(1.4); }
+    }
+    .badge-line {
+      width: 36px; height: 1px;
+      background: var(--muted);
+    }
+
+    /* Main headline */
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3.5rem, 9vw, 8rem);
+      font-weight: 800;
+      line-height: 0.97;
+      letter-spacing: -0.04em;
+      margin-bottom: 0;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 0.9s 0.08s ease both;
+    }
+    /* Outlined text (no fill, just stroke) */
+    .hero-title .outline {
+      -webkit-text-stroke: 1.5px rgba(240,237,232,0.25);
+      color: transparent;
+    }
+    html.light .hero-title .outline {
+      -webkit-text-stroke: 1.5px rgba(17,17,24,0.25);
+    }
+    /* Accent colored word */
+    .hero-title .accent-word {
+      color: var(--accent);
+    }
+
+    /* Bottom half of hero (desc + buttons) */
+    .hero-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 56px;
+      flex-wrap: wrap;
+      gap: 32px;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 0.9s 0.18s ease both;
+    }
+    .hero-desc {
+      max-width: 420px;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--muted2);
+      font-weight: 300;
+    }
+    .hero-desc strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* CTA button group */
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* Stats row below hero */
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+      margin-top: 64px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      position: relative;
+      z-index: 2;
+      flex-wrap: wrap;
+      animation: fadeUp 0.9s 0.3s ease both;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 90px;
+      right: 6%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      writing-mode: vertical-rl;
+      animation: fadeUp 0.9s 0.4s ease both;
+    }
+    .scroll-line {
+      width: 1px; height: 52px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(36px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SCROLLING MARQUEE STRIP ── */
+    .marquee-strip {
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      overflow: hidden;
+    }
+    .marquee-track {
+      display: flex;
+      white-space: nowrap;
+      animation: marquee 22s linear infinite;
+    }
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 44px;
+      padding: 0 44px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .marquee-dot {
+      color: var(--accent);
+      font-size: 0.5rem;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── QUICK SERVICES PREVIEW ── */
+    .services-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 52px;
+    }
+    .svc-preview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Top color line appears on hover */
+    .svc-preview-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .svc-preview-card:hover::before { transform: scaleX(1); }
+    .svc-preview-card:hover {
+      border-color: rgba(232,255,71,0.2);
+      transform: translateY(-5px);
+      background: var(--bg3);
+    }
+    .svc-icon {
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+    }
+    .svc-preview-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .svc-preview-card p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .svc-price {
+      margin-top: 16px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* ── WHY ME CARDS ── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 52px;
+    }
+    .why-card {
+      text-align: center;
+      padding: 36px 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: transform 0.3s ease;
+    }
+    .why-card:hover {
+      transform: translateY(-4px);
+    }
+    .why-card .big-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .why-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 12px 0 8px;
+      color: var(--text);
+    }
+    .why-card p {
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 0 4% 60px;
+      }
+      .hero-title {
+        font-size: clamp(2rem, 7vw, 3.5rem);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        margin-bottom: 16px;
+      }
+      .hero-bottom { flex-direction: column; align-items: flex-start; }
+      .hero-stats  { gap: 28px; }
+      .scroll-hint { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title {
+        font-size: clamp(2.2rem, 6vw, 2.8rem);
+        line-height: 1.1;
+      }
+      .hero-ctas {
+        flex-direction: column;
+        width: 100%;
+      }
+      .hero-ctas a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    </style>
+
+
+ <style>
+    /* ── CONTACT LAYOUT ── */
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 80px;
+      margin-top: 72px;
+      align-items: start;
+    }
+
+    /* Left side: contact info */
+    .contact-info h3 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .contact-info > p { margin-bottom: 32px; }
+
+    /* Contact detail cards (WhatsApp, email, location) */
+    .contact-items { display: flex; flex-direction: column; gap: 12px; }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.93rem;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .contact-item:hover {
+      border-color: rgba(232,255,71,0.3);
+      background: rgba(232,255,71,0.03);
+    }
+    .contact-item .ci-icon { font-size: 1.15rem; width: 32px; text-align: center; }
+    .contact-item .ci-label { color: var(--muted); font-size: 0.78rem; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .contact-item .ci-value { font-weight: 500; }
+
+    /* Availability indicator */
+    .availability-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 24px;
+      color: var(--muted2);
+      font-size: 0.85rem;
+    }
+    .avail-dot {
+      width: 8px; height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(1.5); }
+    }
+
+    /* Right side: contact form */
+    .contact-form { display: flex; flex-direction: column; gap: 14px; }
+
+    /* Two-column row for name + phone */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .cf-field { display: flex; flex-direction: column; gap: 6px; }
+    .cf-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .cf-input {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.93rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+      width: 100%;
+    }
+    .cf-input:focus { border-color: rgba(232,255,71,0.4); }
+    .cf-input::placeholder { color: var(--muted); }
+    textarea.cf-input { resize: vertical; min-height: 140px; }
+
+    /* Submit button */
+    .cf-submit {
+      background: var(--accent);
+      color: #08080f;
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 4px;
+    }
+    .cf-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(232,255,71,0.3);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .contact-layout { grid-template-columns: 1fr; gap: 48px; }
+      .form-row       { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  
+</head>
+<body>
+
+  <!-- Custom cursor elements -->
+  <div class="cursor-ball" id="cursorBall"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <!-- ============================================================
+       NAVIGATION BAR
+       Shared across all pages. Active link = "Home"
+       ============================================================ -->
+  <nav class="navbar" id="navbar">
+    <!-- Logo -->
+    <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+
+    <!-- Desktop navigation links -->
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="portfolio.html">Work</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <!-- Dark/Light toggle -->
+      <li><button class="theme-toggle" id="themeToggle" title="Toggle theme">☀️</button></li>
+      <!-- Hire Me CTA -->
+      <li><a href="contact.html" class="nav-hire">Hire Me</a></li>
+    </ul>
+
+    <!-- Mobile controls (hamburger + theme toggle) -->
+    <div class="mobile-controls">
+      <button class="theme-toggle" id="themeToggleMobile" title="Toggle theme">☀️</button>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav> 
+
+  <!-- Mobile full-screen navigation drawer -->
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" id="mobileClose">✕</button>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="services.html">Services</a>
+    <a href="portfolio.html">Work</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="contact.html">Contact</a>
+    <a href="contact.html" style="color:var(--accent)">Hire Me →</a>
+  </div>
+
+
+  <!-- ============================================================
+       HERO SECTION
+       Full-height intro with headline, description, and CTAs
+       ============================================================ -->
+  <section class="hero" id="home">
+
+    <!-- Background decorations -->
+    <div class="hero-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- Availability indicator -->
+    <div class="availability-badge">
+      <div class="badge-dot"></div>
+      <div class="badge-line"></div>
+      <span>Available for new projects</span>
+    </div>
+
+    <!-- Main headline — 3 lines with different treatments -->
+    <h1 class="hero-title">
+      Crafting<br>
+      <span class="outline">Digital</span><br>
+      <span class="accent-word">Experiences</span>
+    </h1>
+
+    <!-- Description + CTA buttons -->
+    <div class="hero-bottom">
+      <p class="hero-desc">
+        I'm a <strong>web developer from Rajahmundry</strong> who builds
+        fast, stunning websites that turn visitors into customers.
+        <strong>Clean code. Pixel-perfect design. Real results.</strong>
+      </p>
+      <div class="hero-ctas">
+        <a href="portfolio.html" class="btn-primary">View My Work →</a>
+        <a href="contact.html"   class="btn-ghost">Let's Talk ↗</a>
+      </div>
+    </div>
+
+    <!-- Stats row at bottom of hero -->
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num" id="statSites">0+</div>
+        <div class="stat-label">Sites Delivered</div>
+      </div>
+      <div>
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Client Satisfaction</div>
+      </div>
+      <div>
+        <div class="stat-num">48h</div>
+        <div class="stat-label">Avg. Turnaround</div>
+      </div>
+      <div>
+        <div class="stat-num">₹</div>
+        <div class="stat-label">Transparent Pricing</div>
+      </div>
+    </div>
+
+    <!-- Scroll hint on the right -->
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       MARQUEE STRIP
+       Scrolling text banner showing keywords / services
+       ============================================================ -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <!-- Duplicate the content so it loops seamlessly -->
+      <div class="marquee-item">
+        Web Development <span class="marquee-dot">✦</span>
+        UI Design <span class="marquee-dot">✦</span>
+        E-Commerce <span class="marquee-dot">✦</span>
+        SEO Optimisation <span class="marquee-dot">✦</span>
+        Responsive Design <span class="marquee-dot">✦</span>
+        Performance Tuning <span class="marquee-dot">✦</span>
+        Custom Websites <span class="marquee-dot">✦</span>
+        Landing Pages <span class="marquee-dot">✦</span>
+        Business Sites <span class="marquee-dot">✦</span>
+        Web Development <span class="marquee-dot">✦</span>
+        UI Design <span class="marquee-dot">✦</span>
+        E-Commerce <span class="marquee-dot">✦</span>
+        SEO Optimisation <span class="marquee-dot">✦</span>
+        Responsive Design <span class="marquee-dot">✦</span>
+        Performance Tuning <span class="marquee-dot">✦</span>
+        Custom Websites <span class="marquee-dot">✦</span>
+        Landing Pages <span class="marquee-dot">✦</span>
+        Business Sites <span class="marquee-dot">✦</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       SERVICES PREVIEW SECTION
+       Quick overview of main services with pricing
+       ============================================================ -->
+  <section class="section section-alt">
+    <div class="reveal">
+      <div class="section-tag">What I Build</div>
+      <h2 class="section-title">Services for Every Business</h2>
+      <p class="section-sub">From simple landing pages to full e-commerce stores — built clean, fast, and affordable.</p>
+    </div>
+
+    <div class="services-preview reveal delay-2">
+      <div class="svc-preview-card">
+        <div class="svc-icon">🌐</div>
+        <h3>Business Website</h3>
+        <p>Clean, professional sites for clinics, shops, coaching centers, and more.</p>
+        <div class="svc-price">From ₹3,000</div>
+      </div>
+      <div class="svc-preview-card">
+        <div class="svc-icon">🛒</div>
+        <h3>E-Commerce Store</h3>
+        <p>Full online stores with products, cart, and secure payment gateway.</p>
+        <div class="svc-price">From ₹15,000</div>
+      </div>
+      <div class="svc-preview-card">
+        <div class="svc-icon">🎯</div>
+        <h3>Landing Page</h3>
+        <p>High-converting single pages designed to get visitors to take action.</p>
+        <div class="svc-price">From ₹2,500</div>
+      </div>
+      <div class="svc-preview-card">
+        <div class="svc-icon">⚡</div>
+        <h3>Speed & SEO Fix</h3>
+        <p>Slow site? Not on Google? I'll fix performance and boost your ranking.</p>
+        <div class="svc-price">From ₹2,000</div>
+      </div>
+    </div>
+
+    <!-- Link to full services page -->
+    <div style="text-align:center; margin-top:40px;">
+      <a href="services.html" class="btn-ghost">See All Services →</a>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       WHY HIRE ME SECTION
+       4 key selling points in card format
+       ============================================================ -->
+  <section class="section">
+    <div class="reveal" style="text-align:center; max-width:580px; margin:0 auto;">
+      <div class="section-tag">Why Choose Me</div>
+      <h2 class="section-title">What Makes Me Different</h2>
+    </div>
+
+    <div class="why-grid reveal delay-2">
+      <div class="why-card">
+        <div class="big-num">₹</div>
+        <h4>Affordable Pricing</h4>
+        <p>Professional quality at prices that work for small businesses in Rajahmundry and across AP.</p>
+      </div>
+      <div class="why-card">
+        <div class="big-num">⚡</div>
+        <h4>Fast Delivery</h4>
+        <p>Most websites ready in 48–72 hours. No long waits, no excuses.</p>
+      </div>
+      <div class="why-card">
+        <div class="big-num">📱</div>
+        <h4>Mobile First</h4>
+        <p>Every site looks and works perfectly on phones — that's how your customers browse.</p>
+      </div>
+      <div class="why-card">
+        <div class="big-num">🤝</div>
+        <h4>Local Support</h4>
+        <p>Based in Rajahmundry. Reachable on WhatsApp and available for in-person meetings.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       CALL TO ACTION BAND
+       Bold yellow strip encouraging visitors to get in touch
+       ============================================================ -->
+  <div class="reveal" style="background:var(--accent); padding:80px 6%; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:32px; position:relative; z-index:2;">
+    <h2 style="font-family:'Syne',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; color:#08080f; letter-spacing:-0.03em; line-height:1.15; max-width:520px;">
+      Ready to get your business online? Let's build something great.
+    </h2>
+    <a href="contact.html" style="background:#08080f; color:var(--accent); padding:18px 40px; border-radius:6px; font-weight:700; font-size:0.9rem; text-decoration:none; text-transform:uppercase; letter-spacing:0.06em; transition:transform 0.2s, box-shadow 0.2s; white-space:nowrap; display:inline-block;"
+       onmouseover="this.style.transform='translateY(-3px)'"
+       onmouseout="this.style.transform=''">
+      Start Your Project →
+    </a>
+  </div>
+
+    <!-- ── CONTACT SECTION ── -->
+  <section class="section section-alt">
+    <div class="contact-layout">
+
+      <!-- LEFT: Contact info cards -->
+      <div class="contact-info reveal">
+        <h3>I'm available for new projects right now.</h3>
+        <p>
+          Based in Rajahmundry, AP. Happy to meet locally or work with clients
+          anywhere in India via WhatsApp. WhatsApp is the fastest way to reach me.
+        </p>
+
+        <div class="contact-items">
+
+          <!-- WhatsApp — REPLACE the number below with your real number -->
+          <a href="https://wa.me/91XXXXXXXXXX" class="contact-item" target="_blank">
+            <span class="ci-icon">📱</span>
+            <div>
+              <div class="ci-label">WhatsApp (Fastest)</div>
+              <!-- TODO: Replace XXXXXXXXXX with your actual WhatsApp number -->
+              <div class="ci-value">+91 XXXX-XXXXXX</div>
+            </div>
+          </a>
+
+          <!-- Email — REPLACE with your real email -->
+          <a href="mailto:your@email.com" class="contact-item">
+            <span class="ci-icon">✉️</span>
+            <div>
+              <div class="ci-label">Email</div>
+              <!-- TODO: Replace with your actual email address -->
+              <div class="ci-value">your@email.com</div>
+            </div>
+          </a>
+
+          <!-- Location -->
+          <div class="contact-item">
+            <span class="ci-icon">📍</span>
+            <div>
+              <div class="ci-label">Location</div>
+              <div class="ci-value">Rajahmundry, East Godavari, Andhra Pradesh</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Availability status -->
+        <div class="availability-line">
+          <div class="avail-dot"></div>
+          <span>Currently available — taking new projects</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: Contact form -->
+      <div class="reveal delay-2">
+        <div class="contact-form">
+
+          <!-- Name + Phone in one row -->
+          <div class="form-row">
+            <div class="cf-field">
+              <label class="cf-label">Your Name *</label>
+              <input class="cf-input" type="text" id="cfName" placeholder="Enter your name" />
+            </div>
+            <div class="cf-field">
+              <label class="cf-label">WhatsApp / Phone *</label>
+              <input class="cf-input" type="tel" id="cfPhone" placeholder="+91 XXXXX XXXXX" />
+            </div>
+          </div>
+
+          <!-- Email (optional) -->
+          <div class="cf-field">
+            <label class="cf-label">Email (optional)</label>
+            <input class="cf-input" type="email" id="cfEmail" placeholder="your@email.com" />
+          </div>
+
+          <!-- Type of website -->
+          <div class="cf-field">
+            <label class="cf-label">Type of Website Needed</label>
+            <input class="cf-input" type="text" id="cfType" placeholder="e.g. Business website, E-Commerce store..." />
+          </div>
+
+          <!-- Message -->
+          <div class="cf-field">
+            <label class="cf-label">Tell Me About Your Business</label>
+            <textarea class="cf-input" id="cfMessage" placeholder="What does your business do? What pages do you need? Any specific requirements?"></textarea>
+          </div>
+
+          <!-- Submit — calls handleContactForm() from main.js -->
+          <button class="cf-submit" onclick="handleContactForm()">Send Message →</button>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       FOOTER
+       Shared across all pages
+       ============================================================ -->
+  <footer class="footer">
+    <div class="footer-grid">
+
+      <!-- Brand column -->
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+        <p>Web developer from Rajahmundry building fast, professional websites for businesses across India. Clean code, honest pricing, real results.</p>
+      </div>
+
+      <!-- Services column -->
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="services.html">Business Websites</a></li>
+          <li><a href="services.html">E-Commerce Stores</a></li>
+          <li><a href="services.html">Landing Pages</a></li>
+          <li><a href="services.html">Site Redesign</a></li>
+          <li><a href="services.html">SEO & Speed</a></li>
+          <li><a href="services.html">Maintenance</a></li>
+        </ul>
+      </div>
+
+      <!-- Quick links column -->
+      <div class="footer-col">
+        <h5>Quick Links</h5>
+        <ul>
+          <li><a href="about.html">About Me</a></li>
+          <li><a href="portfolio.html">My Work</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 Steve | Web Developer, Rajahmundry, AP</p>
+      <p>Built with passion in <a href="#">Rajahmundry 🇮🇳</a></p>
+    </div>
+  </footer>
+
+
+  <!-- ============================================================
+       TOAST NOTIFICATION
+       Used for form feedback etc. Controlled by showToast() in main.js
+       ============================================================ -->
+  <div class="toast" id="toast">
+    <div class="toast-dot"></div>
+    <span id="toastText">Done!</span>
+  </div>
+
+
+  <!-- Global JS (theme, nav, scroll reveal, etc.) -->
+  <script src="js/main.js"></script>
+
+  <script>
+    /* ── PAGE-SPECIFIC JS ── */
+
+    // Sync mobile theme toggle with desktop one
+    const mobileTog = document.getElementById('themeToggleMobile');
+    if (mobileTog) {
+      mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      mobileTog.addEventListener('click', () => {
+        document.getElementById('themeToggle').click();
+        mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      });
+    }
+
+    // Animate the "10+" counter when it scrolls into view
+    const statEl = document.getElementById('statSites');
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounter(statEl, 10, '+');
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counterObserver.observe(statEl);
+  </script>
+
+</body>
+</html>

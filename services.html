@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ============================================================
+  PAGE: Services (services.html)
+  DESCRIPTION: Full list of all services with descriptions,
+               process steps, and call to action.
+  STYLES: css/style.css
+  SCRIPTS: js/main.js
+  ============================================================
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services — Steve.dev</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── SERVICES LIST ── */
+    .services-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 80px;
+      margin-top: 72px;
+      align-items: start;             
+    }
+    /* Left column sticks while right scrolls */
+    .services-sticky { position: sticky; top: 110px; }
+
+    .service-list { display: flex; flex-direction: column; gap: 2px; }
+
+    /* Each service row */
+    .service-row {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 24px;
+      align-items: start;
+      border-top: 1px solid var(--border);
+      padding: 28px 12px;
+      border-radius: 10px;
+      margin: 0 -12px;
+      transition: background 0.2s;
+    }
+    .service-row:last-child { border-bottom: 1px solid var(--border); }
+    .service-row:hover { background: var(--bg3); }
+
+    .svc-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+      padding-top: 4px;
+    }
+    .svc-text h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 7px; color: var(--text); }
+    .svc-text p  { font-size: 0.88rem; line-height: 1.65; color: var(--muted); }
+
+    .svc-price-badge {
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+      margin-top: 4px;
+    }
+
+    /* ── PROCESS SECTION ── */
+    .process-list {
+      margin-top: 60px;
+      position: relative;
+    }
+    /* Vertical connecting line on the left */
+    .process-list::before {
+      content: '';
+      position: absolute;
+      left: 23px; top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+    }
+    .process-step {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 28px;
+      margin-bottom: 52px;
+      align-items: start;
+    }
+    .step-circle {
+      width: 46px; height: 46px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      position: relative; z-index: 2;
+    }
+    .step-text h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 9px; padding-top: 10px; color: var(--text); }
+    .step-text p  { font-size: 0.93rem; line-height: 1.8; color: var(--muted2); }
+    .step-badge {
+      display: inline-block;
+      margin-top: 12px;
+      background: rgba(232,255,71,0.08);
+      border: 1px solid rgba(232,255,71,0.15);
+      padding: 4px 14px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+      .services-layout { grid-template-columns: 1fr; gap: 48px; }
+      .services-sticky { position: static; }
+      .service-row { 
+        grid-template-columns: 36px 1fr auto;
+        gap: 16px;
+        padding: 20px 12px;
+      }
+      .svc-price-badge { 
+        font-size: 0.75rem;
+        padding: 6px 12px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .service-row {
+        grid-template-columns: 32px 1fr;
+        gap: 12px;
+      }
+      .svc-num {
+        font-size: 0.7rem;
+      }
+      .svc-text h3 {
+        font-size: 0.95rem;
+      }
+      .svc-text p {
+        font-size: 0.8rem;
+      }
+      .svc-price-badge {
+        grid-column: 2;
+        margin-top: 10px;
+        font-size: 0.7rem;
+        padding: 5px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor elements -->
+  <div class="cursor-ball" id="cursorBall"></div>
+  <div class="cursor-trail" id="cursorTrail"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo">Steve<span>.</span>dev</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="services.html" class="active">Services</a></li>
+      <li><a href="portfolio.html">Work</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><button class="theme-toggle" id="themeToggle">☀️</button></li>
+      <li><a href="contact.html" class="nav-hire">Hire Me</a></li>
+    </ul>
+    <!-- Mobile controls (hamburger + theme toggle) -->
+    <div class="mobile-controls">
+      <button class="theme-toggle" id="themeToggleMobile" title="Toggle theme">☀️</button>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-close" id="mobileClose">✕</button>
+    <a href="index.html">Home</a><a href="about.html">About</a>
+    <a href="services.html">Services</a><a href="portfolio.html">Work</a>
+    <a href="pricing.html">Pricing</a><a href="contact.html">Contact</a>
+    <a href="contact.html" style="color:var(--accent)">Hire Me →</a>
+  </div>
+
+  <!-- ── PAGE HERO ── -->
+  <div class="page-hero">
+    <div class="section-tag">Services</div>
+    <h1>What I <span style="color:var(--accent)">Build</span></h1>
+    <p>From simple business pages to full e-commerce stores — designed and developed to grow your business.</p>
+  </div>
+
+  <!-- ── SERVICES LIST ── -->
+  <section class="section section-alt">
+    <div class="services-layout">
+
+      <!-- Left: sticky intro -->
+      <div class="services-sticky reveal">
+        <div class="section-tag">All Services</div>
+        <h2 class="section-title">Every Type of Website</h2>
+        <p class="section-sub">Whatever your business needs, I can build it. Fast, affordable, and professional.</p>
+        <br/><br/>
+        <a href="contact.html" class="btn-primary">Start a Project →</a>
+      </div>
+
+      <!-- Right: service rows -->
+      <div class="service-list reveal delay-2">
+        <div class="service-row">
+          <span class="svc-num">01</span>
+          <div class="svc-text">
+            <h3>Business Website</h3>
+            <p>Professional multi-page sites for clinics, shops, coaching centers, and service businesses. SEO-ready, fast-loading, and looks great on all devices.</p>
+          </div>
+          <span class="svc-price-badge">From ₹3,000</span>
+        </div>
+        <div class="service-row">
+          <span class="svc-num">02</span>
+          <div class="svc-text">
+            <h3>E-Commerce Store</h3>
+            <p>Full online stores with product listings, shopping cart, secure payment gateway, and order management. Sell anything, anywhere in India.</p>
+          </div>
+          <span class="svc-price-badge">From ₹15,000</span>
+        </div>
+        <div class="service-row">
+          <span class="svc-num">03</span>
+          <div class="svc-text">
+            <h3>Landing Page</h3>
+            <p>High-converting single-page sites for products, campaigns, or lead generation. Designed to get visitors to take one specific action.</p>
+          </div>
+          <span class="svc-price-badge">From ₹2,500</span>
+        </div>
+        <div class="service-row">
+          <span class="svc-num">04</span>
+          <div class="svc-text">
+            <h3>Portfolio / Personal Site</h3>
+            <p>Beautiful personal or professional portfolio sites for doctors, lawyers, consultants, artists, and freelancers.</p>
+          </div>
+          <span class="svc-price-badge">From ₹3,500</span>
+        </div>
+        <div class="service-row">
+          <span class="svc-num">05</span>
+          <div class="svc-text">
+            <h3>Site Redesign</h3>
+            <p>Have an outdated website that's embarrassing to share? I'll redesign it from scratch — modern look, better speed, better user experience.</p>
+          </div>
+          <span class="svc-price-badge">From ₹4,000</span>
+        </div>
+        <div class="service-row">
+          <span class="svc-num">06</span>
+          <div class="svc-text">
+            <h3>Speed & SEO Boost</h3>
+            <p>Slow site? Not showing up on Google? I'll fix performance issues, optimise images, and implement on-page SEO to help you rank better.</p>
+          </div>
+          <span class="svc-price-badge">From ₹2,000</span>
+        </div>
+        <div class="service-row">
+          <span class="svc-num">07</span>
+          <div class="svc-text">
+            <h3>Monthly Maintenance</h3>
+            <p>Regular updates, security backups, plugin management, and content edits. Keep your site healthy and running perfectly every month.</p>
+          </div>
+          <span class="svc-price-badge">₹500–₹2,000/mo</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROCESS SECTION ── -->
+  <section class="section">
+    <div class="reveal">
+      <div class="section-tag">How I Work</div>
+      <h2 class="section-title">My Process</h2>
+      <p class="section-sub">A clear, simple workflow so you always know what's happening with your project.</p>
+    </div>
+
+    <div class="process-list reveal delay-2">
+      <div class="process-step">
+        <div class="step-circle">01</div>
+        <div class="step-text">
+          <h3>Discovery Call</h3>
+          <p>We start with a quick chat — WhatsApp, call, or in-person — where I understand your business, goals, and what you need from your website. No jargon, just plain conversation.</p>
+          <span class="step-badge">Day 1</span>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-circle">02</div>
+        <div class="step-text">
+          <h3>Planning & Quote</h3>
+          <p>I send you a clear breakdown of what will be built, what it costs, and how long it takes. You pay 50% upfront and work begins. No hidden charges — ever.</p>
+          <span class="step-badge">Day 1–2</span>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-circle">03</div>
+        <div class="step-text">
+          <h3>Design & Development</h3>
+          <p>I build your site with a clean structure, pixel-perfect design, and full mobile responsiveness. Fast load times and SEO are baked in from the start.</p>
+          <span class="step-badge">Day 2–4</span>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-circle">04</div>
+        <div class="step-text">
+          <h3>Review & Revisions</h3>
+          <p>I share a live preview for your feedback. We go through revisions together until everything is exactly right. Up to 3 rounds of changes included.</p>
+          <span class="step-badge">Day 4–5</span>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-circle">05</div>
+        <div class="step-text">
+          <h3>Launch & Handover</h3>
+          <p>Once you're happy, we go live! I handle domain setup, hosting configuration, and final checks. You receive full ownership of your website.</p>
+          <span class="step-badge">Day 5–7</span>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-circle">06</div>
+        <div class="step-text">
+          <h3>Ongoing Support</h3>
+          <p>After launch I'm still available for fixes, updates, and questions. Optional monthly maintenance plans keep your site running perfectly.</p>
+          <span class="step-badge">Ongoing</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <div style="background:var(--accent); padding:80px 6%; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:32px; position:relative; z-index:2;">
+    <h2 style="font-family:'Syne',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:800; color:#08080f; letter-spacing:-0.03em; line-height:1.15; max-width:500px;">
+      Not sure which service you need? Let's talk.
+    </h2>
+    <a href="contact.html" style="background:#08080f; color:var(--accent); padding:18px 36px; border-radius:6px; font-weight:700; font-size:0.9rem; text-decoration:none; text-transform:uppercase; letter-spacing:0.06em;">
+      Contact Me →
+    </a>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand"><a href="index.html" class="nav-logo">Steve<span>.</span>dev</a><p>Web developer from Rajahmundry building fast, professional websites across India.</p></div>
+      <div class="footer-col"><h5>Services</h5><ul><li><a href="services.html">Business Websites</a></li><li><a href="services.html">E-Commerce Stores</a></li><li><a href="services.html">Landing Pages</a></li><li><a href="services.html">SEO & Speed</a></li></ul></div>
+      <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="about.html">About Me</a></li><li><a href="portfolio.html">My Work</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 Steve | Web Developer, Rajahmundry, AP</p><p>Built with passion in <a href="#">Rajahmundry 🇮🇳</a></p></div>
+  </footer>
+
+  <div class="toast" id="toast"><div class="toast-dot"></div><span id="toastText"></span></div>
+  <script src="js/main.js"></script>
+
+  <script>
+    // Sync mobile theme toggle with desktop one
+    const mobileTog = document.getElementById('themeToggleMobile');
+    if (mobileTog) {
+      mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      mobileTog.addEventListener('click', () => {
+        document.getElementById('themeToggle').click();
+        mobileTog.textContent = document.documentElement.classList.contains('light') ? '🌙' : '☀️';
+      });
+    }
+  </script>
+</body>
+</html>
